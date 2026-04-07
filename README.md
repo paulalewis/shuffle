@@ -1,7 +1,15 @@
 # Shuffle
 
-A tool for selecting a random subset from a user created list.
+A tool for creating lists and selecting a random subset from them.
 
-This tool can be used to decide what exercises to do in a work,
-what to do for a date night, what meals to eat for dinner this week,
-etc.
+## Example Use Cases
+
+- Select a date night activity
+- Select exercises to do in a work
+- Select what meals to eat for dinner this week
+
+## Detailed App Description
+
+A user can create of delete lists
+A user can add items to a list
+A user can add tags to items
