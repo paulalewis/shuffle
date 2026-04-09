@@ -1,4 +1,4 @@
-package com.castlefrog.shuffle.logger
+package com.castlefrog.shuffle.analytics
 
 private object Event {
     const val BUTTON_TAP = "button_tap"

@@ -12,7 +12,7 @@ interface ShuffleListRepository {
 
     fun deleteShuffleList(name: String): Flow<Unit>
 
-    fun addItemToShuffleList(list: ShuffleList, item: String) : Flow<Unit>
+    fun addItemToShuffleList(name: String, item: String) : Flow<Unit>
 
-    fun removeItemFromShuffleList(list: ShuffleList, item: String) : Flow<Unit>
+    fun removeItemFromShuffleList(name: String, item: String) : Flow<Unit>
 }

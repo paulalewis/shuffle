@@ -1,4 +1,4 @@
-package com.castlefrog.shuffle.logger
+package com.castlefrog.shuffle.analytics
 
 object AnalyticsValue {
     object ButtonName {
