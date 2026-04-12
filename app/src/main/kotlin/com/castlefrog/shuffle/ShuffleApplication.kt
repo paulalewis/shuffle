@@ -5,7 +5,10 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.util.Log
 import com.castlefrog.shuffle.analytics.AnalyticsLogger
+import com.castlefrog.shuffle.analytics.FirebaseAnalyticsLogger
 import com.castlefrog.shuffle.repository.ShuffleListRepository
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 
 class ShuffleApplication : Application() {
@@ -32,7 +35,7 @@ class ShuffleApplication : Application() {
                 override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
                     when (priority) {
                         Log.WARN, Log.ERROR -> {
-                            // FirebaseCrashlytics.getInstance().recordException(createException(message, t))
+                            FirebaseCrashlytics.getInstance().recordException(createException(message, t))
                         }
                         else -> {}
                     }
@@ -46,15 +49,7 @@ class ShuffleApplication : Application() {
     }
 
     private fun setupAnalytics() {
-        if (isDebug) {
-            analyticsLogger = object : AnalyticsLogger {
-                override fun logEvent(name: String, data: Map<String, String>) {
-                    Timber.tag("analytics").d("$name : $data")
-                }
-            }
-        } else {
-            // analyticsLogger = FirebaseAnalyticsLogger(FirebaseAnalytics.getInstance(this))
-        }
+        analyticsLogger = FirebaseAnalyticsLogger(FirebaseAnalytics.getInstance(this))
     }
 
     private fun setupRoomService() {
