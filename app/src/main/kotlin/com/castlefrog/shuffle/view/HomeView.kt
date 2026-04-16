@@ -8,49 +8,87 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(
-    onMenuClick: () -> Unit = {},
+    listNames: List<String> = emptyList(),
+    selectedListName: String? = null,
+    onListSelected: (String) -> Unit = {},
     onEditClick: () -> Unit = {},
+    onShareClick: () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = onMenuClick) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Menu")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onEditClick) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Edit")
-                    }
-                },
-            )
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                listNames.forEach { name ->
+                    NavigationDrawerItem(
+                        label = { Text(name) },
+                        selected = name == selectedListName,
+                        onClick = {
+                            onListSelected(name)
+                            scope.launch { drawerState.close() }
+                        },
+                    )
+                }
+            }
         },
-    ) { innerPadding ->
-        content(innerPadding)
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { if (selectedListName != null) Text(selectedListName) },
+                    navigationIcon = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = onEditClick) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Edit")
+                        }
+                        IconButton(onClick = onShareClick) {
+                            Icon(Icons.Filled.Share, contentDescription = "Share")
+                        }
+                    },
+                )
+            },
+        ) { innerPadding ->
+            content(innerPadding)
+        }
     }
 }
 
 @Preview
 @Composable
 fun HomeViewPreview() {
-    HomeView() {
+    HomeView(
+        listNames = listOf("Morning Routine", "Workout", "Shopping"),
+        selectedListName = "Workout",
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
