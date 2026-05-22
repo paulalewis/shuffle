@@ -6,6 +6,10 @@ import kotlinx.coroutines.flow.Flow
 interface ShuffleListRepository {
     fun getAllShuffleListNames(): Flow<List<String>>
 
+    fun getCurrentSelectedList(): Flow<ShuffleList>
+
+    fun setCurrentSelectedList(name: String): Flow<Unit>
+
     fun getShuffleListByName(name: String): Flow<ShuffleList>
 
     fun createShuffleList(name: String): Flow<Unit>

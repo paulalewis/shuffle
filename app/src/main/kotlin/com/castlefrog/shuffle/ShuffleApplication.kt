@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.util.Log
 import com.castlefrog.shuffle.analytics.AnalyticsLogger
 import com.castlefrog.shuffle.analytics.FirebaseAnalyticsLogger
+import com.castlefrog.shuffle.repository.InMemoryShuffleListRepository
 import com.castlefrog.shuffle.repository.ShuffleListRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -57,7 +58,7 @@ class ShuffleApplication : Application() {
     }
 
     private fun setupShuffleListRepository() {
-        // shuffleListRepository = ShuffleListRepositoryImpl(service = shuffleDatabaseService)
+        shuffleListRepository = InMemoryShuffleListRepository()
     }
 }
 
