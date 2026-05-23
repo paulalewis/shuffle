@@ -50,7 +50,15 @@ class ShuffleApplication : Application() {
     }
 
     private fun setupAnalytics() {
-        analyticsLogger = FirebaseAnalyticsLogger(FirebaseAnalytics.getInstance(this))
+        if (isDebug) {
+            analyticsLogger = object : AnalyticsLogger {
+                override fun logEvent(name: String, data: Map<String, String>) {
+                    Timber.i("Event: $name, Data: $data")
+                }
+            }
+        } else {
+            analyticsLogger = FirebaseAnalyticsLogger(FirebaseAnalytics.getInstance(this))
+        }
     }
 
     private fun setupRoomService() {
