@@ -8,6 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.castlefrog.shuffle.ui.theme.ShuffleTheme
+import com.castlefrog.shuffle.view.EmptyView
+import com.castlefrog.shuffle.view.FullScreenLoadingView
 import com.castlefrog.shuffle.view.HomeView
 import com.castlefrog.shuffle.viewmodel.MainViewModel
 import com.castlefrog.shuffle.viewmodel.MainViewModelFactory
@@ -27,10 +29,28 @@ class MainActivity : ComponentActivity() {
             val uiState by viewModel.uiState.collectAsState()
 
             ShuffleTheme {
-                HomeView {
+                when (val mainView = uiState.mainView) {
+                    is MainViewModel.UiState.MainView.ShuffleView -> {
+                        HomeView(
+                            listNames = mainView.allListNames,
+                            selectedListName = mainView.selectedListName,
+                            onListSelected = { viewModel.handleUiEvent(MainViewModel.UiEvent.ChangeList(it)) },
+                        ) {
 
+                        }
+                    }
+                    is MainViewModel.UiState.MainView.Loading -> FullScreenLoadingView()
+                    is MainViewModel.UiState.MainView.Empty -> EmptyView()
+                    is MainViewModel.UiState.MainView.EditListView -> {
+                        TODO()
+                    }
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.handleUiEvent(MainViewModel.UiEvent.Init)
     }
 }

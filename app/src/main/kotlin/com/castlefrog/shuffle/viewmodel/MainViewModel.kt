@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -57,7 +59,8 @@ class MainViewModel(
             data object Empty : MainView()
             data object Loading : MainView()
             data class ShuffleView(
-                val shuffleListName: String,
+                val allListNames: List<String> = emptyList(),
+                val selectedListName: String,
                 val numberOfSubsetItems: Int,
                 val selectedItems: SnapshotStateList<ShuffleItem>,
             ) : MainView()
@@ -73,9 +76,7 @@ class MainViewModel(
     }
 
     sealed class UiEvent {
-        data class Init(val initParams: InitParams) : UiEvent() {
-            data class InitParams(val selectedListName: String?)
-        }
+        data object Init : UiEvent()
 
         data object SelectShuffle : UiEvent()
         data object OpenListNames : UiEvent()
@@ -94,7 +95,7 @@ class MainViewModel(
 
     fun handleUiEvent(uiEvent: UiEvent) {
         when (uiEvent) {
-            is UiEvent.Init -> init(uiEvent.initParams)
+            is UiEvent.Init -> init()
             UiEvent.DismissBottomSheet -> dismissBottomSheet()
             UiEvent.SelectAddItem -> selectAddItem()
             is UiEvent.AddItem -> addItem(uiEvent.item)
@@ -109,40 +110,49 @@ class MainViewModel(
         }
     }
 
-    private fun init(initParams: UiEvent.Init.InitParams) {
-        load(initParams.selectedListName)
+    private fun init() {
+        load()
     }
 
-    private fun load(selectedListName: String?) {
+    private fun load() {
         analyticsLogger.logViewVisible(AnalyticsValue.ViewName.MAIN)
         _uiState.update { UiState(mainView = UiState.MainView.Loading) }
         viewModelScope.launch(Dispatchers.IO) {
-            if (selectedListName != null) { // name ->
-                shuffleListRepository.getShuffleListByName(selectedListName)
-                    .catch { Timber.w(it) }
-                    .collect {
-                        model.selectedList = it
-                        updateSelectedItems()
-                        _uiState.update {
-                            UiState(
-                                mainView = UiState.MainView.ShuffleView(
-                                    numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
-                                    shuffleListName = model.selectedList?.name ?: "",
-                                    selectedItems = mutableStateListOf<ShuffleItem>().apply { addAll(model.selectedList?.items ?: emptyList()) },
-                                )
-                            )
-                        }
-                    }
+            loadAllShuffleListNames()
+            findSelectedList()
+            if (model.selectedList != null) {
+                updateSelectedItems()
+                _uiState.update {
+                    UiState(
+                        mainView = UiState.MainView.ShuffleView(
+                            allListNames = model.allListNames,
+                            numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                            selectedListName = model.selectedList?.name ?: "",
+                            selectedItems = mutableStateListOf<ShuffleItem>().apply {
+                                addAll(model.selectedList?.items ?: emptyList())
+                            },
+                        )
+                    )
+                }
             } else {
                 _uiState.update { UiState(mainView = UiState.MainView.Empty) }
             }
-            shuffleListRepository.getAllShuffleListNames()
-                .catch { Timber.w(it) }
-                .collect { lists ->
-                    model.allListNames.clear()
-                    model.allListNames.addAll(lists)
-                }
         }
+    }
+
+    private suspend fun loadAllShuffleListNames() {
+        model.allListNames.clear()
+        model.allListNames.addAll(
+            shuffleListRepository.getAllShuffleListNames()
+            .catch { Timber.w(it) }
+            .first()
+        )
+    }
+
+    private suspend fun findSelectedList() {
+        model.selectedList = shuffleListRepository.getCurrentSelectedList()
+            .catch { Timber.w(it) }
+            .firstOrNull()
     }
 
     private fun selectAddItem() {
