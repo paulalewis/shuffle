@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -102,7 +103,7 @@ class MainViewModel(
             UiEvent.DeleteItem -> deleteItem()
             UiEvent.ConfirmDelete -> confirmDelete()
             UiEvent.ShareList -> shareList()
-            is UiEvent.ChangeList -> TODO()
+            is UiEvent.ChangeList -> changeList(uiEvent.name)
             is UiEvent.CreateNewList -> TODO()
             UiEvent.OpenEditList -> TODO()
             UiEvent.OpenListNames -> TODO()
@@ -222,6 +223,31 @@ class MainViewModel(
             model.selectedList?.let { sendAction(UiAction.ShareList(it)) }
         } else {
             Timber.w("No selected item to share")
+        }
+    }
+
+    private fun changeList(name: String) {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CHANGE_LIST, mapOf(Pair("name", name)))
+        viewModelScope.launch(Dispatchers.IO) {
+            shuffleListRepository.setCurrentSelectedList(name).single()
+            findSelectedList()
+            if (model.selectedList != null) {
+                updateSelectedItems()
+                _uiState.update {
+                    UiState(
+                        mainView = UiState.MainView.ShuffleView(
+                            allListNames = model.allListNames,
+                            numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                            selectedListName = model.selectedList?.name ?: "",
+                            selectedItems = mutableStateListOf<ShuffleItem>().apply {
+                                addAll(model.selectedList?.items ?: emptyList())
+                            },
+                        )
+                    )
+                }
+            } else {
+                _uiState.update { UiState(mainView = UiState.MainView.Empty) }
+            }
         }
     }
 
