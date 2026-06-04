@@ -6,14 +6,17 @@ import android.content.pm.ApplicationInfo
 import android.util.Log
 import com.castlefrog.shuffle.analytics.AnalyticsLogger
 import com.castlefrog.shuffle.analytics.FirebaseAnalyticsLogger
-import com.castlefrog.shuffle.repository.InMemoryShuffleListRepository
+import com.castlefrog.shuffle.repository.RoomShuffleListRepository
 import com.castlefrog.shuffle.repository.ShuffleListRepository
+import com.castlefrog.shuffle.repository.room.ShuffleDatabase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import timber.log.Timber
 
 class ShuffleApplication : Application() {
-    // private lateinit var shuffleDatabaseService: ShuffleDatabaseService
+    private val applicationScope = CoroutineScope(SupervisorJob())
 
     private var isDebug: Boolean = true
     lateinit var analyticsLogger: AnalyticsLogger
@@ -24,7 +27,6 @@ class ShuffleApplication : Application() {
         isDebug = (applicationContext.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         setUpLogging()
         setupAnalytics()
-        setupRoomService()
         setupShuffleListRepository()
     }
 
@@ -61,12 +63,9 @@ class ShuffleApplication : Application() {
         }
     }
 
-    private fun setupRoomService() {
-        // shuffleDatabaseService = ShuffleDatabaseServiceImpl(this)
-    }
-
     private fun setupShuffleListRepository() {
-        shuffleListRepository = InMemoryShuffleListRepository()
+        val db = ShuffleDatabase.getInstance(this, applicationScope)
+        shuffleListRepository = RoomShuffleListRepository(db.shuffleListDao())
     }
 }
 
