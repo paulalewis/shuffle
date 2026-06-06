@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,6 +37,7 @@ fun HomeView(
     onListSelected: (String) -> Unit = {},
     onEditClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
+    onRefreshClick: () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -58,6 +61,11 @@ fun HomeView(
         },
     ) {
         Scaffold(
+            floatingActionButton = {
+                FloatingActionButton(onClick = onRefreshClick) {
+                    Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
+                }
+            },
             topBar = {
                 TopAppBar(
                     title = { if (selectedListName != null) Text(selectedListName) },

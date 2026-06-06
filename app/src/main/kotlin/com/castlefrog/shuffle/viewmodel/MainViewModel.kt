@@ -86,6 +86,7 @@ class MainViewModel(
         data class ChangeList(val name: String) : UiEvent()
         data class CreateNewList(val name: String) : UiEvent()
 
+        data object Refresh : UiEvent()
         data object SelectAddItem : UiEvent()
         data object DismissBottomSheet : UiEvent()
         data class AddItem(val item: ShuffleItem) : UiEvent()
@@ -97,6 +98,7 @@ class MainViewModel(
     fun handleUiEvent(uiEvent: UiEvent) {
         when (uiEvent) {
             is UiEvent.Init -> init()
+            UiEvent.Refresh -> refresh()
             UiEvent.DismissBottomSheet -> dismissBottomSheet()
             UiEvent.SelectAddItem -> selectAddItem()
             is UiEvent.AddItem -> addItem(uiEvent.item)
@@ -113,6 +115,24 @@ class MainViewModel(
 
     private fun init() {
         load()
+    }
+
+    private fun refresh() {
+        viewModelScope.launch(Dispatchers.IO) {
+            updateSelectedItems()
+            _uiState.update { state ->
+                val currentView = state.mainView
+                if (currentView is UiState.MainView.ShuffleView) {
+                    state.copy(
+                        mainView = currentView.copy(
+                            selectedItems = mutableStateListOf<ShuffleItem>().apply {
+                                addAll(model.selectedItems)
+                            }
+                        )
+                    )
+                } else state
+            }
+        }
     }
 
     private fun load() {

@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
                             listNames = mainView.allListNames,
                             selectedListName = mainView.selectedListName,
                             onListSelected = { viewModel.handleUiEvent(MainViewModel.UiEvent.ChangeList(it)) },
+                            onRefreshClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.Refresh) },
                         ) { innerPadding ->
                             ItemListView(
                                 paddingValues = innerPadding,
