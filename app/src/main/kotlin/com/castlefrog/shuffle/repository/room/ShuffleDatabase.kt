@@ -42,16 +42,16 @@ abstract class ShuffleDatabase : RoomDatabase() {
 
         private suspend fun prepopulate(dao: ShuffleListDao) {
             val lists = listOf(
-                ShuffleListEntity(name = "Date Night", subsetSize = 1, createdAt = 0),
-                ShuffleListEntity(name = "Exercises", subsetSize = 3, createdAt = 1),
-                ShuffleListEntity(name = "Meals", subsetSize = 5, createdAt = 2),
+                ShuffleListEntity(name = "Date Night", subsetSize = 1),
+                ShuffleListEntity(name = "Exercises", subsetSize = 3),
+                ShuffleListEntity(name = "Meals", subsetSize = 5),
             )
             val items = buildList {
                 addAll(DATE_NIGHT_ITEMS.mapIndexed { i, text ->
                     ShuffleItemEntity(listName = "Date Night", text = text, sortOrder = i)
                 })
                 addAll(EXERCISE_ITEMS.mapIndexed { i, text ->
-                    ShuffleItemEntity(listName = "Exercise", text = text, sortOrder = i)
+                    ShuffleItemEntity(listName = "Exercises", text = text, sortOrder = i)
                 })
                 addAll(MEALS_ITEMS.mapIndexed { i, text ->
                     ShuffleItemEntity(listName = "Meals", text = text, sortOrder = i)
