@@ -11,6 +11,7 @@ import com.castlefrog.shuffle.ui.theme.ShuffleTheme
 import com.castlefrog.shuffle.view.EmptyView
 import com.castlefrog.shuffle.view.FullScreenLoadingView
 import com.castlefrog.shuffle.view.HomeView
+import com.castlefrog.shuffle.view.ItemListView
 import com.castlefrog.shuffle.viewmodel.MainViewModel
 import com.castlefrog.shuffle.viewmodel.MainViewModelFactory
 
@@ -35,8 +36,11 @@ class MainActivity : ComponentActivity() {
                             listNames = mainView.allListNames,
                             selectedListName = mainView.selectedListName,
                             onListSelected = { viewModel.handleUiEvent(MainViewModel.UiEvent.ChangeList(it)) },
-                        ) {
-
+                        ) { innerPadding ->
+                            ItemListView(
+                                paddingValues = innerPadding,
+                                itemData = mainView.selectedItems,
+                            )
                         }
                     }
                     is MainViewModel.UiState.MainView.Loading -> FullScreenLoadingView()

@@ -130,7 +130,7 @@ class MainViewModel(
                             numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
                             selectedListName = model.selectedList?.name ?: "",
                             selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                                addAll(model.selectedList?.items ?: emptyList())
+                                addAll(model.selectedItems)
                             },
                         )
                     )
@@ -240,7 +240,7 @@ class MainViewModel(
                             numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
                             selectedListName = model.selectedList?.name ?: "",
                             selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                                addAll(model.selectedList?.items ?: emptyList())
+                                addAll(model.selectedItems)
                             },
                         )
                     )
@@ -254,9 +254,9 @@ class MainViewModel(
     private fun updateSelectedItems() {
         model.selectedItems.clear()
         model.selectedList?.let { list ->
-            val randomItems = getRandomSubset(list.items.size, list.subsetSize)
-            for (i in 0..randomItems.size) {
-                model.selectedItems.add(list.items[i])
+            val randomIndices = getRandomSubset(list.items.size, list.subsetSize)
+            for (index in randomIndices) {
+                model.selectedItems.add(list.items[index])
             }
         }
     }
