@@ -73,6 +73,7 @@ class MainViewModel(
             data object AddItemView : OverlayView()
             data object AddListView : OverlayView()
             data object ConfirmDeleteItemView : OverlayView()
+            data class ConfirmDeleteListView(val listName: String) : OverlayView()
         }
     }
 
@@ -93,6 +94,8 @@ class MainViewModel(
         data object DeleteItem : UiEvent()
         data object ShareList: UiEvent()
         data object ConfirmDelete : UiEvent()
+        data class RequestDeleteList(val name: String) : UiEvent()
+        data object ConfirmDeleteList : UiEvent()
     }
 
     fun handleUiEvent(uiEvent: UiEvent) {
@@ -106,6 +109,8 @@ class MainViewModel(
             UiEvent.ConfirmDelete -> confirmDelete()
             UiEvent.ShareList -> shareList()
             is UiEvent.ChangeList -> changeList(uiEvent.name)
+            is UiEvent.RequestDeleteList -> requestDeleteList(uiEvent.name)
+            UiEvent.ConfirmDeleteList -> confirmDeleteList()
             is UiEvent.CreateNewList -> TODO()
             UiEvent.OpenEditList -> TODO()
             UiEvent.OpenListNames -> TODO()
@@ -250,6 +255,44 @@ class MainViewModel(
         analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CHANGE_LIST, mapOf(Pair("name", name)))
         viewModelScope.launch(Dispatchers.IO) {
             shuffleListRepository.setCurrentSelectedList(name).single()
+            findSelectedList()
+            if (model.selectedList != null) {
+                updateSelectedItems()
+                _uiState.update {
+                    UiState(
+                        mainView = UiState.MainView.ShuffleView(
+                            allListNames = model.allListNames,
+                            numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                            selectedListName = model.selectedList?.name ?: "",
+                            selectedItems = mutableStateListOf<ShuffleItem>().apply {
+                                addAll(model.selectedItems)
+                            },
+                        )
+                    )
+                }
+            } else {
+                _uiState.update { UiState(mainView = UiState.MainView.Empty) }
+            }
+        }
+    }
+
+    private fun requestDeleteList(name: String) {
+        _uiState.update {
+            it.copy(overlayView = UiState.OverlayView.ConfirmDeleteListView(name))
+        }
+    }
+
+    private fun confirmDeleteList() {
+        val listName = (_uiState.value.overlayView as? UiState.OverlayView.ConfirmDeleteListView)?.listName ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            shuffleListRepository.deleteShuffleList(listName).catch { Timber.w(it) }.single()
+            loadAllShuffleListNames()
+            if (model.selectedList?.name == listName) {
+                val nextName = model.allListNames.firstOrNull()
+                if (nextName != null) {
+                    shuffleListRepository.setCurrentSelectedList(nextName).single()
+                }
+            }
             findSelectedList()
             if (model.selectedList != null) {
                 updateSelectedItems()

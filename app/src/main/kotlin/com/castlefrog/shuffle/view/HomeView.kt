@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
@@ -38,6 +39,7 @@ fun HomeView(
     onEditClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
     onRefreshClick: () -> Unit = {},
+    onDeleteListClick: (String) -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -54,6 +56,11 @@ fun HomeView(
                         onClick = {
                             onListSelected(name)
                             scope.launch { drawerState.close() }
+                        },
+                        badge = {
+                            IconButton(onClick = { onDeleteListClick(name) }) {
+                                Icon(Icons.Filled.Delete, contentDescription = "Delete $name")
+                            }
                         },
                     )
                 }
