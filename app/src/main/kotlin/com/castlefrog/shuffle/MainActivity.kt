@@ -12,17 +12,27 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.castlefrog.shuffle.ui.theme.ShuffleTheme
 import com.castlefrog.shuffle.view.EmptyView
@@ -56,6 +66,7 @@ class MainActivity : ComponentActivity() {
                             onListSelected = { viewModel.handleUiEvent(MainViewModel.UiEvent.ChangeList(it)) },
                             onRefreshClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.Refresh) },
                             onDeleteListClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.RequestDeleteList(it)) },
+                            onAddListClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.OpenAddList) },
                         ) { innerPadding ->
                             ItemListView(
                                 paddingValues = innerPadding,
@@ -71,6 +82,38 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val overlay = uiState.overlayView
+
+                if (overlay is MainViewModel.UiState.OverlayView.AddListView) {
+                    var listName by remember { mutableStateOf("") }
+                    val focusRequester = remember { FocusRequester() }
+                    ModalBottomSheet(
+                        onDismissRequest = { viewModel.handleUiEvent(MainViewModel.UiEvent.DismissBottomSheet) },
+                        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                    ) {
+                        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+                            OutlinedTextField(
+                                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                                value = listName,
+                                onValueChange = { listName = it },
+                                label = { Text("List name") },
+                                singleLine = true,
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = listName.isNotBlank(),
+                                onClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.CreateNewList(listName.trim())) },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add list")
+                            }
+                            Spacer(modifier = Modifier.height(24.dp))
+                        }
+                        LaunchedEffect(Unit) {
+                            focusRequester.requestFocus()
+                        }
+                    }
+                }
+
                 if (overlay is MainViewModel.UiState.OverlayView.ConfirmDeleteListView) {
                     ModalBottomSheet(
                         onDismissRequest = { viewModel.handleUiEvent(MainViewModel.UiEvent.DismissBottomSheet) },

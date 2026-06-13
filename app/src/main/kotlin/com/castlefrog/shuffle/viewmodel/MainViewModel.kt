@@ -87,6 +87,7 @@ class MainViewModel(
         data class ChangeList(val name: String) : UiEvent()
         data class CreateNewList(val name: String) : UiEvent()
 
+        data object OpenAddList : UiEvent()
         data object Refresh : UiEvent()
         data object SelectAddItem : UiEvent()
         data object DismissBottomSheet : UiEvent()
@@ -111,7 +112,8 @@ class MainViewModel(
             is UiEvent.ChangeList -> changeList(uiEvent.name)
             is UiEvent.RequestDeleteList -> requestDeleteList(uiEvent.name)
             UiEvent.ConfirmDeleteList -> confirmDeleteList()
-            is UiEvent.CreateNewList -> TODO()
+            UiEvent.OpenAddList -> openAddList()
+            is UiEvent.CreateNewList -> createNewList(uiEvent.name)
             UiEvent.OpenEditList -> TODO()
             UiEvent.OpenListNames -> TODO()
             UiEvent.SelectShuffle -> TODO()
@@ -255,6 +257,36 @@ class MainViewModel(
         analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CHANGE_LIST, mapOf(Pair("name", name)))
         viewModelScope.launch(Dispatchers.IO) {
             shuffleListRepository.setCurrentSelectedList(name).single()
+            findSelectedList()
+            if (model.selectedList != null) {
+                updateSelectedItems()
+                _uiState.update {
+                    UiState(
+                        mainView = UiState.MainView.ShuffleView(
+                            allListNames = model.allListNames,
+                            numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                            selectedListName = model.selectedList?.name ?: "",
+                            selectedItems = mutableStateListOf<ShuffleItem>().apply {
+                                addAll(model.selectedItems)
+                            },
+                        )
+                    )
+                }
+            } else {
+                _uiState.update { UiState(mainView = UiState.MainView.Empty) }
+            }
+        }
+    }
+
+    private fun openAddList() {
+        _uiState.update { it.copy(overlayView = UiState.OverlayView.AddListView) }
+    }
+
+    private fun createNewList(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            shuffleListRepository.createShuffleList(name).catch { Timber.w(it) }.single()
+            shuffleListRepository.setCurrentSelectedList(name).single()
+            loadAllShuffleListNames()
             findSelectedList()
             if (model.selectedList != null) {
                 updateSelectedItems()

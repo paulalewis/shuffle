@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +43,7 @@ fun HomeView(
     onShareClick: () -> Unit = {},
     onRefreshClick: () -> Unit = {},
     onDeleteListClick: (String) -> Unit = {},
+    onAddListClick: () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -63,6 +67,12 @@ fun HomeView(
                             }
                         },
                     )
+                }
+                TextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onAddListClick,
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "New list")
                 }
             }
         },
