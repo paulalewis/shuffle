@@ -64,23 +64,19 @@ class MainViewModel(
                 val numberOfSubsetItems: Int,
                 val selectedItems: SnapshotStateList<ShuffleItem>,
             ) : MainView()
-            data class EditListView(
-                val selectedList: ShuffleList
-            ) : MainView()
         }
         sealed class OverlayView {
             data object AddItemView : OverlayView()
             data object AddListView : OverlayView()
             data object ConfirmDeleteItemView : OverlayView()
             data class ConfirmDeleteListView(val listName: String) : OverlayView()
+            data class EditListView(val list: ShuffleList) : OverlayView()
         }
     }
 
     sealed class UiEvent {
         data object Init : UiEvent()
 
-        data object SelectShuffle : UiEvent()
-        data object OpenListNames : UiEvent()
         data object OpenEditList : UiEvent()
 
         data class ChangeList(val name: String) : UiEvent()
@@ -96,6 +92,8 @@ class MainViewModel(
         data object ConfirmDelete : UiEvent()
         data class RequestDeleteList(val name: String) : UiEvent()
         data object ConfirmDeleteList : UiEvent()
+        data class DeleteItemFromList(val itemText: String) : UiEvent()
+        data class AddItemToList(val itemText: String) : UiEvent()
     }
 
     fun handleUiEvent(uiEvent: UiEvent) {
@@ -113,9 +111,9 @@ class MainViewModel(
             UiEvent.ConfirmDeleteList -> confirmDeleteList()
             UiEvent.OpenAddList -> openAddList()
             is UiEvent.CreateNewList -> createNewList(uiEvent.name)
-            UiEvent.OpenEditList -> TODO()
-            UiEvent.OpenListNames -> TODO()
-            UiEvent.SelectShuffle -> TODO()
+            UiEvent.OpenEditList -> openEditList()
+            is UiEvent.DeleteItemFromList -> deleteItemFromList(uiEvent.itemText)
+            is UiEvent.AddItemToList -> addItemToList(uiEvent.itemText)
         }
     }
 
@@ -291,6 +289,36 @@ class MainViewModel(
                         },
                     )
                 )
+            }
+        }
+    }
+
+    private fun openEditList() {
+        model.selectedList?.let { list ->
+            _uiState.update { it.copy(overlayView = UiState.OverlayView.EditListView(list)) }
+        }
+    }
+
+    private fun deleteItemFromList(itemText: String) {
+        val listName = model.selectedList?.name ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            shuffleListRepository.removeItemFromShuffleList(listName, itemText)
+                .catch { Timber.w(it) }.single()
+            findSelectedList()
+            model.selectedList?.let { list ->
+                _uiState.update { it.copy(overlayView = UiState.OverlayView.EditListView(list)) }
+            }
+        }
+    }
+
+    private fun addItemToList(itemText: String) {
+        val listName = model.selectedList?.name ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            shuffleListRepository.addItemToShuffleList(listName, itemText)
+                .catch { Timber.w(it) }.single()
+            findSelectedList()
+            model.selectedList?.let { list ->
+                _uiState.update { it.copy(overlayView = UiState.OverlayView.EditListView(list)) }
             }
         }
     }
