@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Shuffle" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+    <style name="Theme.Shuffle" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.Shuffle.Main</item>
     </style>
+
+    <style name="Theme.Shuffle.Main" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

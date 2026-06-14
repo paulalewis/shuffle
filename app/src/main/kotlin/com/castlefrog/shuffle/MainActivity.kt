@@ -42,8 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.castlefrog.shuffle.ui.theme.ShuffleTheme
-import com.castlefrog.shuffle.view.FullScreenLoadingView
 import com.castlefrog.shuffle.view.HomeView
 import com.castlefrog.shuffle.view.ItemListView
 import com.castlefrog.shuffle.viewmodel.MainViewModel
@@ -59,7 +59,11 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+        splashScreen.setKeepOnScreenCondition {
+            viewModel.uiState.value.mainView is MainViewModel.UiState.MainView.Loading
+        }
         enableEdgeToEdge()
         setContent {
             val uiState by viewModel.uiState.collectAsState()
@@ -82,7 +86,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
-                    is MainViewModel.UiState.MainView.Loading -> FullScreenLoadingView()
+                    is MainViewModel.UiState.MainView.Loading -> {}
                 }
 
                 val overlay = uiState.overlayView

@@ -15,6 +15,7 @@ composeBom = "2025.12.00"
 materialIconsCore = "1.7.8"
 room = "2.7.1"
 timber = "5.0.1"
+splashscreen = "1.0.1"
 
 [libraries]
 androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
@@ -40,6 +41,7 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
