@@ -35,7 +35,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import com.castlefrog.shuffle.ui.theme.ShuffleTheme
-import com.castlefrog.shuffle.view.EmptyView
 import com.castlefrog.shuffle.view.FullScreenLoadingView
 import com.castlefrog.shuffle.view.HomeView
 import com.castlefrog.shuffle.view.ItemListView
@@ -75,7 +74,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     is MainViewModel.UiState.MainView.Loading -> FullScreenLoadingView()
-                    is MainViewModel.UiState.MainView.Empty -> EmptyView()
                     is MainViewModel.UiState.MainView.EditListView -> {
                         TODO()
                     }

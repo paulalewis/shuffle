@@ -57,7 +57,6 @@ class MainViewModel(
         val overlayView: OverlayView? = null,
     ) {
         sealed class MainView {
-            data object Empty : MainView()
             data object Loading : MainView()
             data class ShuffleView(
                 val allListNames: List<String> = emptyList(),
@@ -148,22 +147,18 @@ class MainViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             loadAllShuffleListNames()
             findSelectedList()
-            if (model.selectedList != null) {
-                updateSelectedItems()
-                _uiState.update {
-                    UiState(
-                        mainView = UiState.MainView.ShuffleView(
-                            allListNames = model.allListNames,
-                            numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
-                            selectedListName = model.selectedList?.name ?: "",
-                            selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                                addAll(model.selectedItems)
-                            },
-                        )
+            updateSelectedItems()
+            _uiState.update {
+                UiState(
+                    mainView = UiState.MainView.ShuffleView(
+                        allListNames = model.allListNames,
+                        numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                        selectedListName = model.selectedList?.name ?: "",
+                        selectedItems = mutableStateListOf<ShuffleItem>().apply {
+                            addAll(model.selectedItems)
+                        },
                     )
-                }
-            } else {
-                _uiState.update { UiState(mainView = UiState.MainView.Empty) }
+                )
             }
         }
     }
@@ -258,22 +253,18 @@ class MainViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             shuffleListRepository.setCurrentSelectedList(name).single()
             findSelectedList()
-            if (model.selectedList != null) {
-                updateSelectedItems()
-                _uiState.update {
-                    UiState(
-                        mainView = UiState.MainView.ShuffleView(
-                            allListNames = model.allListNames,
-                            numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
-                            selectedListName = model.selectedList?.name ?: "",
-                            selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                                addAll(model.selectedItems)
-                            },
-                        )
+            updateSelectedItems()
+            _uiState.update {
+                UiState(
+                    mainView = UiState.MainView.ShuffleView(
+                        allListNames = model.allListNames,
+                        numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                        selectedListName = model.selectedList?.name ?: "",
+                        selectedItems = mutableStateListOf<ShuffleItem>().apply {
+                            addAll(model.selectedItems)
+                        },
                     )
-                }
-            } else {
-                _uiState.update { UiState(mainView = UiState.MainView.Empty) }
+                )
             }
         }
     }
@@ -288,22 +279,18 @@ class MainViewModel(
             shuffleListRepository.setCurrentSelectedList(name).single()
             loadAllShuffleListNames()
             findSelectedList()
-            if (model.selectedList != null) {
-                updateSelectedItems()
-                _uiState.update {
-                    UiState(
-                        mainView = UiState.MainView.ShuffleView(
-                            allListNames = model.allListNames,
-                            numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
-                            selectedListName = model.selectedList?.name ?: "",
-                            selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                                addAll(model.selectedItems)
-                            },
-                        )
+            updateSelectedItems()
+            _uiState.update {
+                UiState(
+                    mainView = UiState.MainView.ShuffleView(
+                        allListNames = model.allListNames,
+                        numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                        selectedListName = model.selectedList?.name ?: "",
+                        selectedItems = mutableStateListOf<ShuffleItem>().apply {
+                            addAll(model.selectedItems)
+                        },
                     )
-                }
-            } else {
-                _uiState.update { UiState(mainView = UiState.MainView.Empty) }
+                )
             }
         }
     }
@@ -326,22 +313,18 @@ class MainViewModel(
                 }
             }
             findSelectedList()
-            if (model.selectedList != null) {
-                updateSelectedItems()
-                _uiState.update {
-                    UiState(
-                        mainView = UiState.MainView.ShuffleView(
-                            allListNames = model.allListNames,
-                            numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
-                            selectedListName = model.selectedList?.name ?: "",
-                            selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                                addAll(model.selectedItems)
-                            },
-                        )
+            updateSelectedItems()
+            _uiState.update {
+                UiState(
+                    mainView = UiState.MainView.ShuffleView(
+                        allListNames = model.allListNames,
+                        numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                        selectedListName = model.selectedList?.name ?: "",
+                        selectedItems = mutableStateListOf<ShuffleItem>().apply {
+                            addAll(model.selectedItems)
+                        },
                     )
-                }
-            } else {
-                _uiState.update { UiState(mainView = UiState.MainView.Empty) }
+                )
             }
         }
     }
