@@ -95,10 +95,9 @@ fun HomeView(
                         IconButton(onClick = onEditClick) {
                             Icon(Icons.Filled.Edit, contentDescription = "Edit")
                         }
-                        // share button feature disabled for now
-                        // IconButton(onClick = onShareClick) {
-                        //     Icon(Icons.Filled.Share, contentDescription = "Share")
-                        // }
+                        IconButton(onClick = onShareClick) {
+                            Icon(Icons.Filled.Share, contentDescription = "Share")
+                        }
                     },
                 )
             },
