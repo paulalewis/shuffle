@@ -90,7 +90,6 @@ class MainViewModel(
         data object DismissBottomSheet : UiEvent()
         data object DeleteItem : UiEvent()
         data object ShareList: UiEvent()
-        data object ConfirmDelete : UiEvent()
         data class RequestDeleteList(val name: String) : UiEvent()
         data object ConfirmDeleteList : UiEvent()
         data class DeleteItemFromList(val itemText: String) : UiEvent()
@@ -104,7 +103,6 @@ class MainViewModel(
             UiEvent.DismissBottomSheet -> dismissBottomSheet()
             UiEvent.SelectAddItem -> selectAddItem()
             UiEvent.DeleteItem -> deleteItem()
-            UiEvent.ConfirmDelete -> confirmDelete()
             UiEvent.ShareList -> shareList()
             is UiEvent.ChangeList -> changeList(uiEvent.name)
             is UiEvent.RequestDeleteList -> requestDeleteList(uiEvent.name)
@@ -193,21 +191,6 @@ class MainViewModel(
         _uiState.update {
             it.copy(overlayView = UiState.OverlayView.ConfirmDeleteItemView)
         }
-    }
-
-    private fun confirmDelete() {
-        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CONFIRM_DELETE_ITEM)
-        /*selectedItem.onSome {
-            viewModelScope.launch(Dispatchers.IO) {
-                shuffleListRepository.updateShuffleList(it)
-                    .catch { Timber.w(it) }
-                    .collect {
-                        hideAlert()
-                        hideBottomSheet()
-                        load()
-                    }
-            }
-        }*/
     }
 
     private fun dismissBottomSheet() {
