@@ -12,7 +12,7 @@ object AnalyticsValue {
 
     object ViewName {
         const val BOTTOM_SHEET = "bottom_sheet"
-        const val LOADING = "loading"
+        const val SPLASH = "splash"
         const val MAIN = "main"
     }
 

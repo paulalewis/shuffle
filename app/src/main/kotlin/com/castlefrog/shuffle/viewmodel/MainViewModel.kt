@@ -29,10 +29,10 @@ class MainViewModel(
     private val shuffleListRepository: ShuffleListRepository,
 ) : ViewModel() {
     data class Model(
+        var hasInit: Boolean = false,
         var allListNames: MutableList<String> = mutableListOf(),
         var selectedList: ShuffleList? = null,
         var selectedItems: SnapshotStateList<ShuffleItem> = mutableStateListOf(),
-        var hasInit: Boolean = false,
     )
 
     private val model: Model = Model()
@@ -87,7 +87,6 @@ class MainViewModel(
         data object Refresh : UiEvent()
         data object SelectAddItem : UiEvent()
         data object DismissBottomSheet : UiEvent()
-        data class AddItem(val item: ShuffleItem) : UiEvent()
         data object DeleteItem : UiEvent()
         data object ShareList: UiEvent()
         data object ConfirmDelete : UiEvent()
@@ -103,7 +102,6 @@ class MainViewModel(
             UiEvent.Refresh -> refresh()
             UiEvent.DismissBottomSheet -> dismissBottomSheet()
             UiEvent.SelectAddItem -> selectAddItem()
-            is UiEvent.AddItem -> addItem(uiEvent.item)
             UiEvent.DeleteItem -> deleteItem()
             UiEvent.ConfirmDelete -> confirmDelete()
             UiEvent.ShareList -> shareList()
@@ -144,8 +142,8 @@ class MainViewModel(
     }
 
     private fun load() {
-        analyticsLogger.logViewVisible(AnalyticsValue.ViewName.MAIN)
         _uiState.update { UiState(mainView = UiState.MainView.Loading) }
+        analyticsLogger.logViewVisible(AnalyticsValue.ViewName.SPLASH)
         viewModelScope.launch(Dispatchers.IO) {
             loadAllShuffleListNames()
             findSelectedList()
@@ -162,6 +160,7 @@ class MainViewModel(
                     )
                 )
             }
+            analyticsLogger.logViewVisible(AnalyticsValue.ViewName.MAIN)
         }
     }
 
@@ -207,27 +206,6 @@ class MainViewModel(
                     }
             }
         }*/
-    }
-
-    private fun addItem(item: ShuffleItem) {
-        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.ADD_ITEM)
-        viewModelScope.launch(Dispatchers.IO) {
-            model.selectedList.let { list ->
-                if (list != null) {
-                    shuffleListRepository.addItemToShuffleList(list.name, item.text)
-                        .catch { Timber.w(it) }
-                        .collect {
-                            _uiState.update {
-                                it.copy()
-                            }
-                            hideBottomSheet()
-                            // load()
-                        }
-                } else {
-
-                }
-            }
-        }
     }
 
     private fun dismissBottomSheet() {
