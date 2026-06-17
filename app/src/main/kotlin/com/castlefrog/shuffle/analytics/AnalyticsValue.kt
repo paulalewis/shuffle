@@ -8,6 +8,7 @@ object AnalyticsValue {
         const val NAVIGATE_TO_ADD = "navigate_to_add"
         const val SHARE_LIST = "share_list"
         const val CHANGE_LIST = "change_list"
+        const val SELECT_ITEM = "select_item"
     }
 
     object ViewName {

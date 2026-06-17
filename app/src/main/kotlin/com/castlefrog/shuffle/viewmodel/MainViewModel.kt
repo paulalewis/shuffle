@@ -361,6 +361,17 @@ class MainViewModel(
     }
 
     private fun shuffleSelectedItem(index: Int) {
-        TODO("Not yet implemented")
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.SELECT_ITEM)
+        val list = model.selectedList ?: return
+        val currentView = _uiState.value.mainView as? UiState.MainView.ShuffleView ?: return
+        if (index < 0 || index >= currentView.selectedItems.size) return
+
+        val excludedItems = currentView.selectedItems.toSet()
+        val available = list.items.filter { it !in excludedItems }
+        if (available.isEmpty()) return
+
+        val newItem = available.random()
+        currentView.selectedItems[index] = newItem
+        model.selectedItems[index] = newItem
     }
 }
