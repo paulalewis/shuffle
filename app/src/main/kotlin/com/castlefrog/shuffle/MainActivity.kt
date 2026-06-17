@@ -41,6 +41,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.castlefrog.shuffle.ui.theme.ShuffleTheme
@@ -144,7 +146,6 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                                     value = itemName,
                                     onValueChange = { itemName = it },
-                                    label = { Text("Item name") },
                                     singleLine = true,
                                 )
                                 Spacer(modifier = Modifier.height(24.dp))
@@ -177,7 +178,6 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                                 value = listName,
                                 onValueChange = { listName = it },
-                                label = { Text("List name") },
                                 singleLine = true,
                             )
                             Spacer(modifier = Modifier.height(24.dp))
@@ -186,7 +186,7 @@ class MainActivity : ComponentActivity() {
                                 enabled = listName.isNotBlank(),
                                 onClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.CreateNewList(listName.trim())) },
                             ) {
-                                Icon(Icons.Filled.Add, contentDescription = "Add list")
+                                Icon(Icons.Filled.Add, contentDescription = "add list")
                             }
                             Spacer(modifier = Modifier.height(24.dp))
                         }
@@ -201,15 +201,13 @@ class MainActivity : ComponentActivity() {
                         onDismissRequest = { viewModel.handleUiEvent(MainViewModel.UiEvent.DismissBottomSheet) },
                         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
                     ) {
-                        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
                             Text(
-                                text = "Delete \"${overlay.listName}\"?",
+                                text = "Delete \"${overlay.listName}\"",
                                 style = MaterialTheme.typography.titleMedium,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "This will permanently delete the list and all its items.",
-                                style = MaterialTheme.typography.bodyMedium,
                             )
                             Spacer(modifier = Modifier.height(24.dp))
                             Row(
@@ -220,7 +218,7 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.weight(1f),
                                     onClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.DismissBottomSheet) },
                                 ) {
-                                    Text("Cancel")
+                                    Text(stringResource(android.R.string.cancel))
                                 }
                                 Button(
                                     modifier = Modifier.weight(1f),
@@ -229,7 +227,7 @@ class MainActivity : ComponentActivity() {
                                         containerColor = MaterialTheme.colorScheme.error,
                                     ),
                                 ) {
-                                    Text("Delete")
+                                    Text(stringResource(android.R.string.ok))
                                 }
                             }
                             Spacer(modifier = Modifier.height(24.dp))

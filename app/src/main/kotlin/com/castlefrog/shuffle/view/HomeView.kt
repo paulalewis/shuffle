@@ -63,7 +63,7 @@ fun HomeView(
                         },
                         badge = {
                             IconButton(onClick = { onDeleteListClick(name) }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Delete $name")
+                                Icon(Icons.Filled.Delete, contentDescription = "delete $name")
                             }
                         },
                     )
@@ -72,7 +72,7 @@ fun HomeView(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onAddListClick,
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = "New list")
+                    Icon(Icons.Filled.Add, contentDescription = "new list")
                 }
             }
         },
@@ -80,7 +80,7 @@ fun HomeView(
         Scaffold(
             floatingActionButton = {
                 FloatingActionButton(onClick = onRefreshClick) {
-                    Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
+                    Icon(Icons.Filled.Refresh, contentDescription = "refresh")
                 }
             },
             topBar = {
@@ -88,15 +88,15 @@ fun HomeView(
                     title = { if (selectedListName != null) Text(selectedListName) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                            Icon(Icons.Filled.Menu, contentDescription = "menu")
                         }
                     },
                     actions = {
                         IconButton(onClick = onEditClick) {
-                            Icon(Icons.Filled.Edit, contentDescription = "Edit")
+                            Icon(Icons.Filled.Edit, contentDescription = "edit")
                         }
                         IconButton(onClick = onShareClick) {
-                            Icon(Icons.Filled.Share, contentDescription = "Share")
+                            Icon(Icons.Filled.Share, contentDescription = "share")
                         }
                     },
                 )
