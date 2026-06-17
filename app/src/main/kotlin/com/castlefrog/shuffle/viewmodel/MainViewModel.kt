@@ -32,6 +32,7 @@ class MainViewModel(
         var allListNames: MutableList<String> = mutableListOf(),
         var selectedList: ShuffleList? = null,
         var selectedItems: SnapshotStateList<ShuffleItem> = mutableStateListOf(),
+        var hasInit: Boolean = false,
     )
 
     private val model: Model = Model()
@@ -118,7 +119,10 @@ class MainViewModel(
     }
 
     private fun init() {
-        load()
+        if (!model.hasInit) {
+            model.hasInit = true
+            load()
+        }
     }
 
     private fun refresh() {
