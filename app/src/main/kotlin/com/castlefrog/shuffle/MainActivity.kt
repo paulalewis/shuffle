@@ -84,6 +84,7 @@ class MainActivity : ComponentActivity() {
                             ItemListView(
                                 paddingValues = innerPadding,
                                 itemData = mainView.selectedItems,
+                                onSelectItemListener = { index -> viewModel.handleUiEvent(MainViewModel.UiEvent.SelectItem(index)) }
                             )
                         }
                     }

@@ -85,6 +85,7 @@ class MainViewModel(
 
         data object OpenAddList : UiEvent()
         data object Refresh : UiEvent()
+        data class SelectItem(val index: Int) : UiEvent()
         data object SelectAddItem : UiEvent()
         data object DismissBottomSheet : UiEvent()
         data object DeleteItem : UiEvent()
@@ -113,6 +114,7 @@ class MainViewModel(
             UiEvent.OpenEditList -> openEditList()
             is UiEvent.DeleteItemFromList -> deleteItemFromList(uiEvent.itemText)
             is UiEvent.AddItemToList -> addItemToList(uiEvent.itemText)
+            is UiEvent.SelectItem -> shuffleSelectedItem(uiEvent.index)
         }
     }
 
@@ -356,5 +358,9 @@ class MainViewModel(
         } else {
             (0 until listLength).shuffled().take(effectiveSize)
         }
+    }
+
+    private fun shuffleSelectedItem(index: Int) {
+        TODO("Not yet implemented")
     }
 }
