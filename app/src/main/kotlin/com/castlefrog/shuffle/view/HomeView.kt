@@ -31,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +62,7 @@ fun HomeView(
                             onListSelected(name)
                             scope.launch { drawerState.close() }
                         },
+                        shape = androidx.compose.material3.MaterialTheme.shapes.small,
                         badge = {
                             IconButton(onClick = { onDeleteListClick(name) }) {
                                 Icon(Icons.Filled.Delete, contentDescription = "delete $name")
@@ -69,7 +71,7 @@ fun HomeView(
                     )
                 }
                 TextButton(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
                     onClick = onAddListClick,
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = "new list")
