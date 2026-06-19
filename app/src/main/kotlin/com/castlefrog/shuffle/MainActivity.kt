@@ -84,7 +84,11 @@ class MainActivity : ComponentActivity() {
                             ItemListView(
                                 paddingValues = innerPadding,
                                 itemData = mainView.selectedItems,
-                                onSelectItemListener = { index -> viewModel.handleUiEvent(MainViewModel.UiEvent.SelectItem(index)) }
+                                currentItemCount = mainView.selectedItems.size,
+                                totalItemCount = mainView.totalItemCount,
+                                onSelectItemListener = { index -> viewModel.handleUiEvent(MainViewModel.UiEvent.SelectItem(index)) },
+                                onIncreaseSubsetSize = { viewModel.handleUiEvent(MainViewModel.UiEvent.IncreaseSubsetSize) },
+                                onDecreaseSubsetSize = { viewModel.handleUiEvent(MainViewModel.UiEvent.DecreaseSubsetSize) },
                             )
                         }
                     }

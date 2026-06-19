@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
 
 class RoomShuffleListRepository(private val dao: ShuffleListDao) : ShuffleListRepository {
 
@@ -28,6 +29,16 @@ class RoomShuffleListRepository(private val dao: ShuffleListDao) : ShuffleListRe
 
     override fun setCurrentSelectedList(name: String): Flow<Unit> = flow {
         dao.upsertSelectedList(SelectedListEntity(listName = name))
+        emit(Unit)
+    }
+
+    override fun incListSubsetSize(name: String): Flow<Unit> = flow {
+        dao.incrementSubsetSize(name)
+        emit(Unit)
+    }
+
+    override fun decListSubsetSize(name: String): Flow<Unit> = flow {
+        dao.decrementSubsetSize(name)
         emit(Unit)
     }
 

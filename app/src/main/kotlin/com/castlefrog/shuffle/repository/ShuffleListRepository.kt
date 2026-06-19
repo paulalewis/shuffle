@@ -10,6 +10,10 @@ interface ShuffleListRepository {
 
     fun setCurrentSelectedList(name: String): Flow<Unit>
 
+    fun incListSubsetSize(name: String): Flow<Unit>
+
+    fun decListSubsetSize(name: String): Flow<Unit>
+
     fun getShuffleListByName(name: String): Flow<ShuffleList>
 
     fun createShuffleList(name: String): Flow<Unit>

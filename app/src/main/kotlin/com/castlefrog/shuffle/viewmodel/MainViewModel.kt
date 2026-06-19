@@ -63,6 +63,7 @@ class MainViewModel(
                 val allListNames: List<String> = emptyList(),
                 val selectedListName: String,
                 val numberOfSubsetItems: Int,
+                val totalItemCount: Int,
                 val selectedItems: SnapshotStateList<ShuffleItem>,
             ) : MainView()
         }
@@ -86,6 +87,8 @@ class MainViewModel(
         data object OpenAddList : UiEvent()
         data object Refresh : UiEvent()
         data class SelectItem(val index: Int) : UiEvent()
+        data object IncreaseSubsetSize : UiEvent()
+        data object DecreaseSubsetSize : UiEvent()
         data object SelectAddItem : UiEvent()
         data object DismissBottomSheet : UiEvent()
         data object DeleteItem : UiEvent()
@@ -113,6 +116,8 @@ class MainViewModel(
             is UiEvent.DeleteItemFromList -> deleteItemFromList(uiEvent.itemText)
             is UiEvent.AddItemToList -> addItemToList(uiEvent.itemText)
             is UiEvent.SelectItem -> shuffleSelectedItem(uiEvent.index)
+            UiEvent.IncreaseSubsetSize -> increaseSubsetSize()
+            UiEvent.DecreaseSubsetSize -> decreaseSubsetSize()
         }
     }
 
@@ -153,6 +158,7 @@ class MainViewModel(
                     mainView = UiState.MainView.ShuffleView(
                         allListNames = model.allListNames,
                         numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                        totalItemCount = model.selectedList?.items?.size ?: 0,
                         selectedListName = model.selectedList?.name ?: "",
                         selectedItems = mutableStateListOf<ShuffleItem>().apply {
                             addAll(model.selectedItems)
@@ -224,6 +230,7 @@ class MainViewModel(
                     mainView = UiState.MainView.ShuffleView(
                         allListNames = model.allListNames,
                         numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                        totalItemCount = model.selectedList?.items?.size ?: 0,
                         selectedListName = model.selectedList?.name ?: "",
                         selectedItems = mutableStateListOf<ShuffleItem>().apply {
                             addAll(model.selectedItems)
@@ -250,6 +257,7 @@ class MainViewModel(
                     mainView = UiState.MainView.ShuffleView(
                         allListNames = model.allListNames,
                         numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                        totalItemCount = model.selectedList?.items?.size ?: 0,
                         selectedListName = model.selectedList?.name ?: "",
                         selectedItems = mutableStateListOf<ShuffleItem>().apply {
                             addAll(model.selectedItems)
@@ -314,6 +322,7 @@ class MainViewModel(
                     mainView = UiState.MainView.ShuffleView(
                         allListNames = model.allListNames,
                         numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                        totalItemCount = model.selectedList?.items?.size ?: 0,
                         selectedListName = model.selectedList?.name ?: "",
                         selectedItems = mutableStateListOf<ShuffleItem>().apply {
                             addAll(model.selectedItems)
@@ -340,6 +349,63 @@ class MainViewModel(
             emptyList()
         } else {
             (0 until listLength).shuffled().take(effectiveSize)
+        }
+    }
+
+    private fun increaseSubsetSize() {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.INCREASE_SUBSET_SIZE)
+        val list = model.selectedList ?: return
+        val currentView = _uiState.value.mainView as? UiState.MainView.ShuffleView ?: return
+        if (currentView.selectedItems.size >= list.items.size) return
+
+        val excludedItems = currentView.selectedItems.toSet()
+        val available = list.items.filter { it !in excludedItems }
+        if (available.isEmpty()) return
+
+        val newItem = available.random()
+        val newSubsetSize = currentView.selectedItems.size + 1
+        model.selectedList = list.copy(subsetSize = newSubsetSize)
+        model.selectedItems.add(newItem)
+        currentView.selectedItems.add(newItem)
+
+        model.selectedList?.name?.let { name ->
+            viewModelScope.launch(Dispatchers.IO) {
+                shuffleListRepository.incListSubsetSize(name)
+                    .catch { Timber.w(it) }
+                    .single()
+
+                _uiState.update { state ->
+                    (state.mainView as? UiState.MainView.ShuffleView)?.let { view ->
+                        state.copy(mainView = view.copy(numberOfSubsetItems = newSubsetSize))
+                    } ?: state
+                }
+            }
+        }
+    }
+
+    private fun decreaseSubsetSize() {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.DECREASE_SUBSET_SIZE)
+        val list = model.selectedList ?: return
+        val currentView = _uiState.value.mainView as? UiState.MainView.ShuffleView ?: return
+        if (currentView.selectedItems.size <= 1) return
+
+        val newSubsetSize = currentView.selectedItems.size - 1
+        model.selectedList = list.copy(subsetSize = newSubsetSize)
+        model.selectedItems.removeLastOrNull()
+        currentView.selectedItems.removeLastOrNull()
+
+        model.selectedList?.name?.let { name ->
+            viewModelScope.launch(Dispatchers.IO) {
+                shuffleListRepository.decListSubsetSize(name)
+                    .catch { Timber.w(it) }
+                    .single()
+
+                _uiState.update { state ->
+                    (state.mainView as? UiState.MainView.ShuffleView)?.let { view ->
+                        state.copy(mainView = view.copy(numberOfSubsetItems = newSubsetSize))
+                    } ?: state
+                }
+            }
         }
     }
 

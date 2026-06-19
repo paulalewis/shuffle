@@ -9,6 +9,8 @@ object AnalyticsValue {
         const val SHARE_LIST = "share_list"
         const val CHANGE_LIST = "change_list"
         const val SELECT_ITEM = "select_item"
+        const val INCREASE_SUBSET_SIZE = "increase_subset_size"
+        const val DECREASE_SUBSET_SIZE = "decrease_subset_size"
     }
 
     object ViewName {

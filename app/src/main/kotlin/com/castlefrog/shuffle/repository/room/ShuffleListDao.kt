@@ -42,4 +42,10 @@ interface ShuffleListDao {
 
     @Query("DELETE FROM shuffle_items WHERE listName = :listName AND text = :text")
     suspend fun removeItem(listName: String, text: String)
+
+    @Query("UPDATE shuffle_lists SET subsetSize = subsetSize + 1 WHERE name = :name")
+    suspend fun incrementSubsetSize(name: String)
+
+    @Query("UPDATE shuffle_lists SET subsetSize = MAX(1, subsetSize - 1) WHERE name = :name")
+    suspend fun decrementSubsetSize(name: String)
 }
