@@ -91,7 +91,6 @@ class MainViewModel(
         data object DecreaseSubsetSize : UiEvent()
         data object SelectAddItem : UiEvent()
         data object DismissBottomSheet : UiEvent()
-        data object DeleteItem : UiEvent()
         data object ShareList: UiEvent()
         data class RequestDeleteList(val name: String) : UiEvent()
         data object ConfirmDeleteList : UiEvent()
@@ -105,7 +104,6 @@ class MainViewModel(
             UiEvent.Refresh -> refresh()
             UiEvent.DismissBottomSheet -> dismissBottomSheet()
             UiEvent.SelectAddItem -> selectAddItem()
-            UiEvent.DeleteItem -> deleteItem()
             UiEvent.ShareList -> shareList()
             is UiEvent.ChangeList -> changeList(uiEvent.name)
             is UiEvent.RequestDeleteList -> requestDeleteList(uiEvent.name)
@@ -129,6 +127,7 @@ class MainViewModel(
     }
 
     private fun refresh() {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.REFRESH)
         viewModelScope.launch(Dispatchers.IO) {
             updateSelectedItems()
             _uiState.update { state ->
@@ -186,16 +185,9 @@ class MainViewModel(
     }
 
     private fun selectAddItem() {
-        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.NAVIGATE_TO_ADD)
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.NAVIGATE_TO_ADD_ITEM)
         _uiState.update {
             it.copy(overlayView = UiState.OverlayView.AddItemView)
-        }
-    }
-
-    private fun deleteItem() {
-        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.DELETE_ITEM)
-        _uiState.update {
-            it.copy(overlayView = UiState.OverlayView.ConfirmDeleteItemView)
         }
     }
 
@@ -220,7 +212,7 @@ class MainViewModel(
     }
 
     private fun changeList(name: String) {
-        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CHANGE_LIST, mapOf(Pair("name", name)))
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CHANGE_LIST, mapOf(Pair(AnalyticsValue.ValueName.NAME, name)))
         viewModelScope.launch(Dispatchers.IO) {
             shuffleListRepository.setCurrentSelectedList(name).single()
             findSelectedList()
@@ -242,10 +234,12 @@ class MainViewModel(
     }
 
     private fun openAddList() {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.NAVIGATE_TO_ADD_LIST)
         _uiState.update { it.copy(overlayView = UiState.OverlayView.AddListView) }
     }
 
     private fun createNewList(name: String) {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CREATE_NEW_LIST, mapOf(Pair(AnalyticsValue.ValueName.NAME, name)))
         viewModelScope.launch(Dispatchers.IO) {
             shuffleListRepository.createShuffleList(name).catch { Timber.w(it) }.single()
             shuffleListRepository.setCurrentSelectedList(name).single()
@@ -269,12 +263,14 @@ class MainViewModel(
     }
 
     private fun openEditList() {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.OPEN_EDIT_LIST)
         model.selectedList?.let { list ->
             _uiState.update { it.copy(overlayView = UiState.OverlayView.EditListView(list)) }
         }
     }
 
     private fun deleteItemFromList(itemText: String) {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.DELETE_ITEM, mapOf(Pair(AnalyticsValue.ValueName.NAME, itemText)))
         val listName = model.selectedList?.name ?: return
         viewModelScope.launch(Dispatchers.IO) {
             shuffleListRepository.removeItemFromShuffleList(listName, itemText)
@@ -287,6 +283,7 @@ class MainViewModel(
     }
 
     private fun addItemToList(itemText: String) {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.ADD_ITEM, mapOf(Pair(AnalyticsValue.ValueName.NAME, itemText)))
         val listName = model.selectedList?.name ?: return
         viewModelScope.launch(Dispatchers.IO) {
             shuffleListRepository.addItemToShuffleList(listName, itemText)
@@ -299,12 +296,14 @@ class MainViewModel(
     }
 
     private fun requestDeleteList(name: String) {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.REQUEST_DELETE_LIST, mapOf(Pair(AnalyticsValue.ValueName.NAME, name)))
         _uiState.update {
             it.copy(overlayView = UiState.OverlayView.ConfirmDeleteListView(name))
         }
     }
 
     private fun confirmDeleteList() {
+        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CONFIRM_DELETE_LIST)
         val listName = (_uiState.value.overlayView as? UiState.OverlayView.ConfirmDeleteListView)?.listName ?: return
         viewModelScope.launch(Dispatchers.IO) {
             shuffleListRepository.deleteShuffleList(listName).catch { Timber.w(it) }.single()

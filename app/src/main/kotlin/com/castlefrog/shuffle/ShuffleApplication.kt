@@ -52,14 +52,14 @@ class ShuffleApplication : Application() {
     }
 
     private fun setupAnalytics() {
-        if (isDebug) {
-            analyticsLogger = object : AnalyticsLogger {
+        analyticsLogger = if (isDebug) {
+            object : AnalyticsLogger {
                 override fun logEvent(name: String, data: Map<String, String>) {
                     Timber.i("Event: $name, Data: $data")
                 }
             }
         } else {
-            analyticsLogger = FirebaseAnalyticsLogger(FirebaseAnalytics.getInstance(this))
+            FirebaseAnalyticsLogger(FirebaseAnalytics.getInstance(this))
         }
     }
 
