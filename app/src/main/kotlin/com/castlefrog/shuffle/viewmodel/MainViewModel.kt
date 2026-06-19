@@ -40,19 +40,6 @@ class MainViewModel(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    private val _uiAction = MutableStateFlow<UiAction>(UiAction.None)
-    val uiAction: StateFlow<UiAction> = _uiAction
-
-    private fun sendAction(uiAction: UiAction) {
-        _uiAction.value = uiAction
-        _uiAction.value = UiAction.None
-    }
-
-    sealed class UiAction {
-        data object None : UiAction()
-        data class ShareList(val list: ShuffleList) : UiAction()
-    }
-
     data class UiState(
         val mainView: MainView = MainView.Loading,
         val overlayView: OverlayView? = null,
@@ -70,7 +57,6 @@ class MainViewModel(
         sealed class OverlayView {
             data object AddItemView : OverlayView()
             data object AddListView : OverlayView()
-            data object ConfirmDeleteItemView : OverlayView()
             data class ConfirmDeleteListView(val listName: String) : OverlayView()
             data class EditListView(val list: ShuffleList) : OverlayView()
         }
@@ -204,11 +190,7 @@ class MainViewModel(
 
     private fun shareList() {
         analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.SHARE_LIST)
-        if (model.selectedList != null) {
-            model.selectedList?.let { sendAction(UiAction.ShareList(it)) }
-        } else {
-            Timber.w("No selected item to share")
-        }
+        TODO()
     }
 
     private fun changeList(name: String) {
