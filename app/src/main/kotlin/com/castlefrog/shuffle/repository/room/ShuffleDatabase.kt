@@ -31,7 +31,7 @@ abstract class ShuffleDatabase : RoomDatabase() {
                 context.applicationContext,
                 ShuffleDatabase::class.java,
                 "shuffle.db",
-            ).addCallback(object : RoomDatabase.Callback() {
+            ).addCallback(object : Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     scope.launch {
                         database?.shuffleListDao()?.let { prepopulate(it) }
