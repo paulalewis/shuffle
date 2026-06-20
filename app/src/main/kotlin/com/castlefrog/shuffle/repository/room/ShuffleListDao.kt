@@ -16,17 +16,11 @@ interface ShuffleListDao {
     @Query("SELECT * FROM shuffle_lists WHERE name = :name")
     fun getListWithItems(name: String): Flow<ShuffleListWithItems>
 
-    @Query("SELECT * FROM selected_list WHERE id = 1")
-    fun getSelectedList(): Flow<SelectedListEntity?>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertList(list: ShuffleListEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItems(items: List<ShuffleItemEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertSelectedList(selected: SelectedListEntity)
 
     @Query("DELETE FROM shuffle_lists WHERE name = :name")
     suspend fun deleteList(name: String)

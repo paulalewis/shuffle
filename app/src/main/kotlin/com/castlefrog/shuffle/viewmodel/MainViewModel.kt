@@ -13,12 +13,16 @@ import com.castlefrog.shuffle.model.ShuffleItem
 import com.castlefrog.shuffle.model.ShuffleList
 import com.castlefrog.shuffle.repository.ShuffleListRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -79,7 +83,7 @@ class MainViewModel(
         data object DismissBottomSheet : UiEvent()
         data object ShareList: UiEvent()
         data class RequestDeleteList(val name: String) : UiEvent()
-        data object ConfirmDeleteList : UiEvent()
+        data class ConfirmDeleteList(val name: String) : UiEvent()
         data class DeleteItemFromList(val itemText: String) : UiEvent()
         data class AddItemToList(val itemText: String) : UiEvent()
     }
@@ -93,7 +97,7 @@ class MainViewModel(
             UiEvent.ShareList -> shareList()
             is UiEvent.ChangeList -> changeList(uiEvent.name)
             is UiEvent.RequestDeleteList -> requestDeleteList(uiEvent.name)
-            UiEvent.ConfirmDeleteList -> confirmDeleteList()
+            is UiEvent.ConfirmDeleteList -> confirmDeleteList(uiEvent.name)
             UiEvent.OpenAddList -> openAddList()
             is UiEvent.CreateNewList -> createNewList(uiEvent.name)
             UiEvent.OpenEditList -> openEditList()
@@ -164,8 +168,13 @@ class MainViewModel(
         )
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun findSelectedList() {
         model.selectedList = shuffleListRepository.getCurrentSelectedList()
+            .map { if (it.isNullOrEmpty()) model.allListNames.firstOrNull() else it }
+            .flatMapMerge {
+                if (it != null) shuffleListRepository.getShuffleListByName(it) else flowOf(null)
+            }
             .catch { Timber.w(it) }
             .firstOrNull()
     }
@@ -284,20 +293,11 @@ class MainViewModel(
         }
     }
 
-    private fun confirmDeleteList() {
+    private fun confirmDeleteList(name: String) {
         analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CONFIRM_DELETE_LIST)
-        val listName = (_uiState.value.overlayView as? UiState.OverlayView.ConfirmDeleteListView)?.listName ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            shuffleListRepository.deleteShuffleList(listName).catch { Timber.w(it) }.single()
-            loadAllShuffleListNames()
-            if (model.selectedList?.name == listName) {
-                val nextName = model.allListNames.firstOrNull()
-                if (nextName != null) {
-                    shuffleListRepository.setCurrentSelectedList(nextName).single()
-                }
-            }
-            findSelectedList()
-            updateSelectedItems()
+            updateSelectedListBeforeDelete(name)
+            deleteList(name)
             _uiState.update {
                 UiState(
                     mainView = UiState.MainView.ShuffleView(
@@ -312,6 +312,29 @@ class MainViewModel(
                 )
             }
         }
+    }
+
+    private suspend fun deleteList(name: String) {
+        model.allListNames.remove(name)
+        shuffleListRepository.deleteShuffleList(name).catch { Timber.w(it) }.single()
+    }
+
+    /**
+     * If the currently selected list is being deleted,
+     * this function updates the selected list to another existing list
+     * (if any) before the deletion happens.
+     */
+    private suspend fun updateSelectedListBeforeDelete(name: String) {
+        if (model.selectedList?.name != name) return
+        val selectedListIndex = model.allListNames.indexOf(name).let {
+            if (it == 0) if (model.allListNames.size > 1) 1 else -1 else it - 1
+        }
+        val selectedListName = if (selectedListIndex != -1) model.allListNames[selectedListIndex] else null
+        shuffleListRepository.setCurrentSelectedList(selectedListName).single()
+        model.selectedList = if (selectedListName != null)
+            shuffleListRepository.getShuffleListByName(selectedListName).catch { Timber.w(it) }.firstOrNull()
+        else null
+        updateSelectedItems()
     }
 
     private fun updateSelectedItems() {

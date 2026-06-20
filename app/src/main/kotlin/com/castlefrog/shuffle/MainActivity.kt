@@ -226,7 +226,7 @@ class MainActivity : ComponentActivity() {
                                 }
                                 Button(
                                     modifier = Modifier.weight(1f),
-                                    onClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.ConfirmDeleteList) },
+                                    onClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.ConfirmDeleteList(overlay.listName)) },
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.error,
                                     ),

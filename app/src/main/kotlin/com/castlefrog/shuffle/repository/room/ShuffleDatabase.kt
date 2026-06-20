@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [ShuffleListEntity::class, ShuffleItemEntity::class, SelectedListEntity::class],
+    entities = [ShuffleListEntity::class, ShuffleItemEntity::class],
     version = 1,
     exportSchema = false,
 )
@@ -59,7 +59,6 @@ abstract class ShuffleDatabase : RoomDatabase() {
             }
             lists.forEach { dao.insertList(it) }
             dao.insertItems(items)
-            dao.upsertSelectedList(SelectedListEntity(listName = "Date Night"))
         }
 
         private val DATE_NIGHT_ITEMS = listOf(

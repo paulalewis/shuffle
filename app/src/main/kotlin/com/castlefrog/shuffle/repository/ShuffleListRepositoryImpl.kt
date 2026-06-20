@@ -1,33 +1,35 @@
 package com.castlefrog.shuffle.repository
 
+import android.content.SharedPreferences
 import com.castlefrog.shuffle.model.ShuffleColor
 import com.castlefrog.shuffle.model.ShuffleGroup
 import com.castlefrog.shuffle.model.ShuffleItem
 import com.castlefrog.shuffle.model.ShuffleList
-import com.castlefrog.shuffle.repository.room.SelectedListEntity
 import com.castlefrog.shuffle.repository.room.ShuffleListDao
 import com.castlefrog.shuffle.repository.room.ShuffleListEntity
 import com.castlefrog.shuffle.repository.room.ShuffleListWithItems
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import androidx.core.content.edit
 
-class RoomShuffleListRepository(private val dao: ShuffleListDao) : ShuffleListRepository {
+private const val SELECTED_LIST_KEY = "selected_list"
+
+class ShuffleListRepositoryImpl(
+    private val dao: ShuffleListDao,
+    private val sharedPreferences: SharedPreferences,
+) : ShuffleListRepository {
 
     override fun getAllShuffleListNames(): Flow<List<String>> = dao.getAllListNames()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getCurrentSelectedList(): Flow<ShuffleList> =
-        dao.getSelectedList()
-            .filterNotNull()
-            .flatMapLatest { dao.getListWithItems(it.listName) }
-            .map { it.toDomain() }
+    override fun getCurrentSelectedList(): Flow<String?> = flow {
+        emit(sharedPreferences.getString(SELECTED_LIST_KEY, null))
+    }
 
-    override fun setCurrentSelectedList(name: String): Flow<Unit> = flow {
-        dao.upsertSelectedList(SelectedListEntity(listName = name))
+    override fun setCurrentSelectedList(name: String?): Flow<Unit> = flow {
+        sharedPreferences.edit (true) { putString(SELECTED_LIST_KEY, name) }
         emit(Unit)
     }
 

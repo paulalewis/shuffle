@@ -6,7 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.util.Log
 import com.castlefrog.shuffle.analytics.AnalyticsLogger
 import com.castlefrog.shuffle.analytics.FirebaseAnalyticsLogger
-import com.castlefrog.shuffle.repository.RoomShuffleListRepository
+import com.castlefrog.shuffle.repository.ShuffleListRepositoryImpl
 import com.castlefrog.shuffle.repository.ShuffleListRepository
 import com.castlefrog.shuffle.repository.room.ShuffleDatabase
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -14,6 +14,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import timber.log.Timber
+
+private const val SHUFFLE_PREFS = "shuffle_prefs"
 
 class ShuffleApplication : Application() {
     private val applicationScope = CoroutineScope(SupervisorJob())
@@ -65,7 +67,10 @@ class ShuffleApplication : Application() {
 
     private fun setupShuffleListRepository() {
         val db = ShuffleDatabase.getInstance(this, applicationScope)
-        shuffleListRepository = RoomShuffleListRepository(db.shuffleListDao())
+        shuffleListRepository = ShuffleListRepositoryImpl(
+            dao = db.shuffleListDao(),
+            sharedPreferences = getSharedPreferences(SHUFFLE_PREFS, MODE_PRIVATE)
+        )
     }
 }
 
