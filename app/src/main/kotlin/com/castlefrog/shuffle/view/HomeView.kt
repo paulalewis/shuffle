@@ -119,7 +119,7 @@ fun HomeView(
                             IconButton(onClick = onEditClick) {
                                 Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.cd_edit))
                             }
-                            if (hasItems) {
+                            if (hasItems && false) {
                                 IconButton(onClick = onShareClick) {
                                     Icon(Icons.Filled.Share, contentDescription = stringResource(R.string.cd_share))
                                 }
