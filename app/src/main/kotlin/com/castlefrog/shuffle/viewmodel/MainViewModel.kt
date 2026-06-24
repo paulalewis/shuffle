@@ -70,24 +70,20 @@ class MainViewModel(
 
     sealed class UiEvent {
         data object Init : UiEvent()
-
         data object OpenEditList : UiEvent()
-
         data class ChangeList(val name: String) : UiEvent()
         data class CreateNewList(val name: String) : UiEvent()
-
         data object OpenAddList : UiEvent()
         data object Refresh : UiEvent()
         data class SelectItem(val index: Int) : UiEvent()
         data object IncreaseSubsetSize : UiEvent()
         data object DecreaseSubsetSize : UiEvent()
-        data object SelectAddItem : UiEvent()
         data object DismissBottomSheet : UiEvent()
         data object ShareList: UiEvent()
         data class RequestDeleteList(val name: String) : UiEvent()
         data class ConfirmDeleteList(val name: String) : UiEvent()
-        data class DeleteItemFromList(val itemText: String) : UiEvent()
-        data class AddItemToList(val itemText: String) : UiEvent()
+        data class DeleteItemFromList(val text: String) : UiEvent()
+        data class AddItemToList(val text: String) : UiEvent()
     }
 
     fun handleUiEvent(uiEvent: UiEvent) {
@@ -95,7 +91,6 @@ class MainViewModel(
             is UiEvent.Init -> init()
             UiEvent.Refresh -> refresh()
             UiEvent.DismissBottomSheet -> dismissBottomSheet()
-            UiEvent.SelectAddItem -> selectAddItem()
             UiEvent.ShareList -> shareList()
             is UiEvent.ChangeList -> changeList(uiEvent.name)
             is UiEvent.RequestDeleteList -> requestDeleteList(uiEvent.name)
@@ -103,8 +98,8 @@ class MainViewModel(
             UiEvent.OpenAddList -> openAddList()
             is UiEvent.CreateNewList -> createNewList(uiEvent.name)
             UiEvent.OpenEditList -> openEditList()
-            is UiEvent.DeleteItemFromList -> deleteItemFromList(uiEvent.itemText)
-            is UiEvent.AddItemToList -> addItemToList(uiEvent.itemText)
+            is UiEvent.DeleteItemFromList -> deleteItemFromList(uiEvent.text)
+            is UiEvent.AddItemToList -> addItemToList(uiEvent.text)
             is UiEvent.SelectItem -> shuffleSelectedItem(uiEvent.index)
             UiEvent.IncreaseSubsetSize -> increaseSubsetSize()
             UiEvent.DecreaseSubsetSize -> decreaseSubsetSize()
@@ -174,13 +169,6 @@ class MainViewModel(
             .firstOrNull()
     }
 
-    private fun selectAddItem() {
-        analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.NAVIGATE_TO_ADD_ITEM)
-        _uiState.update {
-            it.copy(overlayView = UiState.OverlayView.AddItemView)
-        }
-    }
-
     private fun dismissBottomSheet() {
         hideBottomSheet()
     }
@@ -241,10 +229,11 @@ class MainViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             shuffleListRepository.removeItemFromShuffleList(selectedList.name, itemText)
                 .catch { Timber.w(it) }.single()
-            findSelectedList()
+            val newSelectedList = selectedList.copy(items = selectedList.items - ShuffleItem(itemText))
+            model.selectedList = newSelectedList
             updateSelectedItems()
             val uiState = generateMainUiState()
-                .copy(overlayView = UiState.OverlayView.EditListView(selectedList))
+                .copy(overlayView = UiState.OverlayView.EditListView(newSelectedList))
             updateUi(uiState)
         }
     }
@@ -255,10 +244,11 @@ class MainViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             shuffleListRepository.addItemToShuffleList(selectedList.name, itemText)
                 .catch { Timber.w(it) }.single()
-            findSelectedList()
+            val newSelectedList = selectedList.copy(items = selectedList.items + ShuffleItem(itemText))
+            model.selectedList = newSelectedList
             updateSelectedItems()
             val uiState = generateMainUiState()
-                .copy(overlayView = UiState.OverlayView.EditListView(selectedList))
+                .copy(overlayView = UiState.OverlayView.EditListView(newSelectedList))
             updateUi(uiState)
         }
     }

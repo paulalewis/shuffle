@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.castlefrog.shuffle.ui.theme.ShuffleTheme
+import com.castlefrog.shuffle.view.AddItemView
 import com.castlefrog.shuffle.view.HomeView
 import com.castlefrog.shuffle.view.ItemListView
 import com.castlefrog.shuffle.viewmodel.MainViewModel
@@ -140,34 +141,13 @@ class MainActivity : ComponentActivity() {
                     }
 
                     if (showAddItemSheet) {
-                        var itemName by remember { mutableStateOf("") }
-                        val focusRequester = remember { FocusRequester() }
-                        ModalBottomSheet(
-                            onDismissRequest = { showAddItemSheet = false },
-                            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                        ) {
-                            Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                                OutlinedTextField(
-                                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
-                                    value = itemName,
-                                    onValueChange = { itemName = it },
-                                    singleLine = true,
-                                )
-                                Spacer(modifier = Modifier.height(24.dp))
-                                Button(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    enabled = itemName.isNotBlank(),
-                                    onClick = {
-                                        viewModel.handleUiEvent(MainViewModel.UiEvent.AddItemToList(itemName.trim()))
-                                        showAddItemSheet = false
-                                    },
-                                ) {
-                                    Icon(Icons.Filled.Add, contentDescription = "add item")
-                                }
-                                Spacer(modifier = Modifier.height(24.dp))
-                            }
-                            LaunchedEffect(Unit) { focusRequester.requestFocus() }
-                        }
+                        AddItemView(
+                            onDismissRequested = { showAddItemSheet = false },
+                            onAddItemClicked = {
+                                viewModel.handleUiEvent(MainViewModel.UiEvent.AddItemToList(it))
+                                showAddItemSheet = false
+                            },
+                        )
                     }
                 }
 
