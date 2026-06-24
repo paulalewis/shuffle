@@ -8,7 +8,6 @@ import com.castlefrog.shuffle.model.ShuffleList
 import com.castlefrog.shuffle.repository.room.ShuffleListDao
 import com.castlefrog.shuffle.repository.room.ShuffleListEntity
 import com.castlefrog.shuffle.repository.room.ShuffleListWithItems
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -23,13 +22,12 @@ class ShuffleListRepositoryImpl(
 
     override fun getAllShuffleListNames(): Flow<List<String>> = dao.getAllListNames()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getCurrentSelectedList(): Flow<String?> = flow {
-        emit(sharedPreferences.getString(SELECTED_LIST_KEY, null))
+    override fun getCurrentSelectedListIndex(): Flow<Int> = flow {
+        emit(sharedPreferences.getInt(SELECTED_LIST_KEY, 0))
     }
 
-    override fun setCurrentSelectedList(name: String?): Flow<Unit> = flow {
-        sharedPreferences.edit (true) { putString(SELECTED_LIST_KEY, name) }
+    override fun setCurrentSelectedListIndex(index: Int): Flow<Unit> = flow {
+        sharedPreferences.edit (true) { putInt(SELECTED_LIST_KEY, index) }
         emit(Unit)
     }
 

@@ -2,6 +2,7 @@ package com.castlefrog.shuffle.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,6 +24,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
@@ -38,7 +40,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeView(
     listNames: List<String> = emptyList(),
-    selectedListName: String? = null,
+    selectedListName: String = "",
+    hasItems: Boolean = false,
     onListSelected: (String) -> Unit = {},
     onEditClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
@@ -79,32 +82,54 @@ fun HomeView(
             }
         },
     ) {
-        Scaffold(
-            floatingActionButton = {
-                FloatingActionButton(onClick = onRefreshClick) {
-                    Icon(Icons.Filled.Refresh, contentDescription = "refresh")
+        if (listNames.isEmpty()) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                ) {
+                    FloatingActionButton(onClick = onAddListClick) {
+                        Icon(Icons.Filled.Add, contentDescription = "add list")
+                    }
                 }
-            },
-            topBar = {
-                TopAppBar(
-                    title = { if (selectedListName != null) Text(selectedListName) },
-                    navigationIcon = {
-                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "menu")
+            }
+        } else {
+            Scaffold(
+                floatingActionButton = {
+                    if (hasItems) {
+                        FloatingActionButton(onClick = onRefreshClick) {
+                            Icon(Icons.Filled.Refresh, contentDescription = "refresh")
                         }
-                    },
-                    actions = {
-                        IconButton(onClick = onEditClick) {
-                            Icon(Icons.Filled.Edit, contentDescription = "edit")
-                        }
-                        IconButton(onClick = onShareClick) {
-                            Icon(Icons.Filled.Share, contentDescription = "share")
-                        }
-                    },
-                )
-            },
-        ) { innerPadding ->
-            content(innerPadding)
+                    }
+                },
+                topBar = {
+                    TopAppBar(
+                        title = { Text(selectedListName) },
+                        navigationIcon = {
+                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                Icon(Icons.Filled.Menu, contentDescription = "menu")
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = onEditClick) {
+                                Icon(Icons.Filled.Edit, contentDescription = "edit")
+                            }
+                            if (hasItems) {
+                                IconButton(onClick = onShareClick) {
+                                    Icon(Icons.Filled.Share, contentDescription = "share")
+                                }
+                            }
+                        },
+                    )
+                },
+            ) { innerPadding ->
+                if (hasItems) {
+                    content(innerPadding)
+                }
+            }
         }
     }
 }
@@ -115,6 +140,26 @@ fun HomeViewPreview() {
     HomeView(
         listNames = listOf("Morning Routine", "Workout", "Shopping"),
         selectedListName = "Workout",
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.Blue)
+        ) {
+            Text(
+                modifier = Modifier.padding(it),
+                text = "Content",
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun EmptyHomeViewPreview() {
+    HomeView(
+        listNames = listOf(),
+        selectedListName = "",
     ) {
         Box(
             modifier = Modifier

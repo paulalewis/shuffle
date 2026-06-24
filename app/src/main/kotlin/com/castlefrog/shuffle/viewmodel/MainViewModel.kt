@@ -112,7 +112,15 @@ class MainViewModel(
     private fun init() {
         if (!model.hasInit) {
             model.hasInit = true
-            load()
+            updateUi(UiState(mainView = UiState.MainView.Loading))
+            analyticsLogger.logViewVisible(AnalyticsValue.ViewName.SPLASH)
+            viewModelScope.launch(Dispatchers.IO) {
+                loadAllShuffleListNames()
+                findSelectedList()
+                updateSelectedItems()
+                updateUi()
+                analyticsLogger.logViewVisible(AnalyticsValue.ViewName.MAIN)
+            }
         }
     }
 
@@ -120,43 +128,28 @@ class MainViewModel(
         analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.REFRESH)
         viewModelScope.launch(Dispatchers.IO) {
             updateSelectedItems()
-            _uiState.update { state ->
-                val currentView = state.mainView
-                if (currentView is UiState.MainView.ShuffleView) {
-                    state.copy(
-                        mainView = currentView.copy(
-                            selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                                addAll(model.selectedItems)
-                            }
-                        )
-                    )
-                } else state
-            }
+            updateUi()
         }
     }
 
-    private fun load() {
-        _uiState.update { UiState(mainView = UiState.MainView.Loading) }
-        analyticsLogger.logViewVisible(AnalyticsValue.ViewName.SPLASH)
-        viewModelScope.launch(Dispatchers.IO) {
-            loadAllShuffleListNames()
-            findSelectedList()
-            updateSelectedItems()
-            _uiState.update {
-                UiState(
-                    mainView = UiState.MainView.ShuffleView(
-                        allListNames = model.allListNames,
-                        numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
-                        totalItemCount = model.selectedList?.items?.size ?: 0,
-                        selectedListName = model.selectedList?.name ?: "",
-                        selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                            addAll(model.selectedItems)
-                        },
-                    )
-                )
-            }
-            analyticsLogger.logViewVisible(AnalyticsValue.ViewName.MAIN)
-        }
+    private fun generateMainUiState(): UiState {
+        return UiState(
+            mainView = UiState.MainView.ShuffleView(
+                allListNames = model.allListNames,
+                numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
+                totalItemCount = model.selectedList?.items?.size ?: 0,
+                selectedListName = model.selectedList?.name ?: "",
+                selectedItems = mutableStateListOf<ShuffleItem>().apply {
+                    addAll(model.selectedItems)
+                },
+            )
+        )
+    }
+
+    private fun updateUi(
+        uiState: UiState = generateMainUiState()
+    ) {
+        _uiState.update { uiState }
     }
 
     private suspend fun loadAllShuffleListNames() {
@@ -170,8 +163,8 @@ class MainViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun findSelectedList() {
-        model.selectedList = shuffleListRepository.getCurrentSelectedList()
-            .map { if (it.isNullOrEmpty()) model.allListNames.firstOrNull() else it }
+        model.selectedList = shuffleListRepository.getCurrentSelectedListIndex()
+            .map { if (model.allListNames.size > it) model.allListNames[it] else null }
             .flatMapMerge {
                 if (it != null) shuffleListRepository.getShuffleListByName(it) else flowOf(null)
             }
@@ -205,22 +198,10 @@ class MainViewModel(
     private fun changeList(name: String) {
         analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CHANGE_LIST, mapOf(Pair(AnalyticsValue.ValueName.NAME, name)))
         viewModelScope.launch(Dispatchers.IO) {
-            shuffleListRepository.setCurrentSelectedList(name).single()
+            shuffleListRepository.setCurrentSelectedListIndex(model.allListNames.indexOf(name)).single()
             findSelectedList()
             updateSelectedItems()
-            _uiState.update {
-                UiState(
-                    mainView = UiState.MainView.ShuffleView(
-                        allListNames = model.allListNames,
-                        numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
-                        totalItemCount = model.selectedList?.items?.size ?: 0,
-                        selectedListName = model.selectedList?.name ?: "",
-                        selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                            addAll(model.selectedItems)
-                        },
-                    )
-                )
-            }
+            updateUi()
         }
     }
 
@@ -232,25 +213,17 @@ class MainViewModel(
     private fun createNewList(name: String) {
         analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CREATE_NEW_LIST, mapOf(Pair(AnalyticsValue.ValueName.NAME, name)))
         viewModelScope.launch(Dispatchers.IO) {
-            shuffleListRepository.createShuffleList(name).catch { Timber.w(it) }.single()
-            shuffleListRepository.setCurrentSelectedList(name).single()
-            loadAllShuffleListNames()
+            createList(name)
+            shuffleListRepository.setCurrentSelectedListIndex(model.allListNames.size - 1).single()
             findSelectedList()
             updateSelectedItems()
-            _uiState.update {
-                UiState(
-                    mainView = UiState.MainView.ShuffleView(
-                        allListNames = model.allListNames,
-                        numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
-                        totalItemCount = model.selectedList?.items?.size ?: 0,
-                        selectedListName = model.selectedList?.name ?: "",
-                        selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                            addAll(model.selectedItems)
-                        },
-                    )
-                )
-            }
+            updateUi()
         }
+    }
+
+    private suspend fun createList(name: String) {
+        model.allListNames.addLast(name)
+        shuffleListRepository.createShuffleList(name).catch { Timber.w(it) }.single()
     }
 
     private fun openEditList() {
@@ -262,27 +235,29 @@ class MainViewModel(
 
     private fun deleteItemFromList(itemText: String) {
         analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.DELETE_ITEM, mapOf(Pair(AnalyticsValue.ValueName.NAME, itemText)))
-        val listName = model.selectedList?.name ?: return
+        val selectedList = model.selectedList ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            shuffleListRepository.removeItemFromShuffleList(listName, itemText)
+            shuffleListRepository.removeItemFromShuffleList(selectedList.name, itemText)
                 .catch { Timber.w(it) }.single()
             findSelectedList()
-            model.selectedList?.let { list ->
-                _uiState.update { it.copy(overlayView = UiState.OverlayView.EditListView(list)) }
-            }
+            updateSelectedItems()
+            val uiState = generateMainUiState()
+                .copy(overlayView = UiState.OverlayView.EditListView(selectedList))
+            updateUi(uiState)
         }
     }
 
     private fun addItemToList(itemText: String) {
         analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.ADD_ITEM, mapOf(Pair(AnalyticsValue.ValueName.NAME, itemText)))
-        val listName = model.selectedList?.name ?: return
+        val selectedList = model.selectedList ?: return
         viewModelScope.launch(Dispatchers.IO) {
-            shuffleListRepository.addItemToShuffleList(listName, itemText)
+            shuffleListRepository.addItemToShuffleList(selectedList.name, itemText)
                 .catch { Timber.w(it) }.single()
             findSelectedList()
-            model.selectedList?.let { list ->
-                _uiState.update { it.copy(overlayView = UiState.OverlayView.EditListView(list)) }
-            }
+            updateSelectedItems()
+            val uiState = generateMainUiState()
+                .copy(overlayView = UiState.OverlayView.EditListView(selectedList))
+            updateUi(uiState)
         }
     }
 
@@ -298,19 +273,7 @@ class MainViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             updateSelectedListBeforeDelete(name)
             deleteList(name)
-            _uiState.update {
-                UiState(
-                    mainView = UiState.MainView.ShuffleView(
-                        allListNames = model.allListNames,
-                        numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
-                        totalItemCount = model.selectedList?.items?.size ?: 0,
-                        selectedListName = model.selectedList?.name ?: "",
-                        selectedItems = mutableStateListOf<ShuffleItem>().apply {
-                            addAll(model.selectedItems)
-                        },
-                    )
-                )
-            }
+            updateUi()
         }
     }
 
@@ -327,10 +290,10 @@ class MainViewModel(
     private suspend fun updateSelectedListBeforeDelete(name: String) {
         if (model.selectedList?.name != name) return
         val selectedListIndex = model.allListNames.indexOf(name).let {
-            if (it == 0) if (model.allListNames.size > 1) 1 else -1 else it - 1
+            if (it == 0) if (model.allListNames.size > 1) 1 else 0 else it - 1
         }
-        val selectedListName = if (selectedListIndex != -1) model.allListNames[selectedListIndex] else null
-        shuffleListRepository.setCurrentSelectedList(selectedListName).single()
+        val selectedListName = if (model.allListNames.isEmpty()) null else model.allListNames[selectedListIndex]
+        shuffleListRepository.setCurrentSelectedListIndex(selectedListIndex).single()
         model.selectedList = if (selectedListName != null)
             shuffleListRepository.getShuffleListByName(selectedListName).catch { Timber.w(it) }.firstOrNull()
         else null

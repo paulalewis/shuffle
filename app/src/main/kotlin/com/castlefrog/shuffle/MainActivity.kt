@@ -75,6 +75,7 @@ class MainActivity : ComponentActivity() {
                         HomeView(
                             listNames = mainView.allListNames,
                             selectedListName = mainView.selectedListName,
+                            hasItems = mainView.selectedItems.isNotEmpty(),
                             onListSelected = { viewModel.handleUiEvent(MainViewModel.UiEvent.ChangeList(it)) },
                             onEditClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.OpenEditList) },
                             onRefreshClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.Refresh) },
