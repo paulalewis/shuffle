@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">خلط</string>
+    <string name="cd_delete">حذف %s</string>
+    <string name="cd_new_list">قائمة جديدة</string>
+    <string name="cd_add_list">إضافة قائمة</string>
+    <string name="cd_add_item">إضافة عنصر</string>
+    <string name="cd_refresh">تحديث</string>
+    <string name="cd_menu">القائمة</string>
+    <string name="cd_edit">تعديل</string>
+    <string name="cd_share">مشاركة</string>
+    <string name="cd_show_fewer_items">عرض عناصر أقل</string>
+    <string name="cd_show_more_items">عرض المزيد من العناصر</string>
+    <string name="confirm_delete_list">حذف %s</string>
+</resources>

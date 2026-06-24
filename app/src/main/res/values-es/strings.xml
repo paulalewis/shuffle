@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Mezclar</string>
+    <string name="cd_delete">Eliminar %s</string>
+    <string name="cd_new_list">Nueva lista</string>
+    <string name="cd_add_list">Añadir lista</string>
+    <string name="cd_add_item">Añadir elemento</string>
+    <string name="cd_refresh">Actualizar</string>
+    <string name="cd_menu">Menú</string>
+    <string name="cd_edit">Editar</string>
+    <string name="cd_share">Compartir</string>
+    <string name="cd_show_fewer_items">Mostrar menos elementos</string>
+    <string name="cd_show_more_items">Mostrar más elementos</string>
+    <string name="confirm_delete_list">Eliminar %s</string>
+</resources>

@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">シャッフル</string>
+    <string name="cd_delete">%sを削除</string>
+    <string name="cd_new_list">新しいリスト</string>
+    <string name="cd_add_list">リストを追加</string>
+    <string name="cd_add_item">アイテムを追加</string>
+    <string name="cd_refresh">更新</string>
+    <string name="cd_menu">メニュー</string>
+    <string name="cd_edit">編集</string>
+    <string name="cd_share">共有</string>
+    <string name="cd_show_fewer_items">表示するアイテムを減らす</string>
+    <string name="cd_show_more_items">表示するアイテムを増やす</string>
+    <string name="confirm_delete_list">%sを削除</string>
+</resources>

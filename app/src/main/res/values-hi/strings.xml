@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">फेरबदल</string>
+    <string name="cd_delete">%s हटाएं</string>
+    <string name="cd_new_list">नई सूची</string>
+    <string name="cd_add_list">सूची जोड़ें</string>
+    <string name="cd_add_item">आइटम जोड़ें</string>
+    <string name="cd_refresh">रीफ्रेश करें</string>
+    <string name="cd_menu">मेनू</string>
+    <string name="cd_edit">संपादित करें</string>
+    <string name="cd_share">साझा करें</string>
+    <string name="cd_show_fewer_items">कम आइटम दिखाएं</string>
+    <string name="cd_show_more_items">अधिक आइटम दिखाएं</string>
+    <string name="confirm_delete_list">%s हटाएं</string>
+</resources>
