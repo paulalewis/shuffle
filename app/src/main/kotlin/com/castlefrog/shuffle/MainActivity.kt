@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import com.castlefrog.shuffle.R
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.castlefrog.shuffle.ui.theme.ShuffleTheme
@@ -118,7 +119,7 @@ class MainActivity : ComponentActivity() {
                                     style = MaterialTheme.typography.titleMedium,
                                 )
                                 Button(onClick = { showAddItemSheet = true }) {
-                                    Icon(Icons.Filled.Add, contentDescription = "add item")
+                                    Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.cd_add_item))
                                 }
                             }
                             HorizontalDivider()
@@ -130,7 +131,7 @@ class MainActivity : ComponentActivity() {
                                             IconButton(onClick = {
                                                 viewModel.handleUiEvent(MainViewModel.UiEvent.DeleteItemFromList(item.text))
                                             }) {
-                                                Icon(Icons.Filled.Delete, contentDescription = "Delete ${item.text}")
+                                                Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.cd_delete, item.text))
                                             }
                                         },
                                     )
@@ -171,7 +172,7 @@ class MainActivity : ComponentActivity() {
                                 enabled = listName.isNotBlank(),
                                 onClick = { viewModel.handleUiEvent(MainViewModel.UiEvent.CreateNewList(listName.trim())) },
                             ) {
-                                Icon(Icons.Filled.Add, contentDescription = "add list")
+                                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.cd_add_list))
                             }
                             Spacer(modifier = Modifier.height(24.dp))
                         }
@@ -191,7 +192,7 @@ class MainActivity : ComponentActivity() {
                             horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                             Text(
-                                text = "Delete \"${overlay.listName}\"",
+                                text = stringResource(R.string.confirm_delete_list, overlay.listName),
                                 style = MaterialTheme.typography.titleMedium,
                             )
                             Spacer(modifier = Modifier.height(24.dp))

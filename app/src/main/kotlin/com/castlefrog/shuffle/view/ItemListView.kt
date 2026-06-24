@@ -20,8 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.castlefrog.shuffle.R
 import com.castlefrog.shuffle.model.ShuffleItem
 
 @Composable
@@ -48,7 +50,7 @@ fun ItemListView(
                     onClick = onDecreaseSubsetSize,
                     enabled = itemData.size > 1,
                 ) {
-                    Icon(Icons.Filled.Remove, contentDescription = "show fewer items")
+                    Icon(Icons.Filled.Remove, contentDescription = stringResource(R.string.cd_show_fewer_items))
                 }
                 Text(
                     text = "$currentItemCount",
@@ -59,7 +61,7 @@ fun ItemListView(
                     onClick = onIncreaseSubsetSize,
                     enabled = itemData.size < totalItemCount,
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = "show more items")
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.cd_show_more_items))
                 }
             }
         }

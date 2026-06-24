@@ -32,8 +32,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.castlefrog.shuffle.R
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +70,7 @@ fun HomeView(
                         shape = androidx.compose.material3.MaterialTheme.shapes.small,
                         badge = {
                             IconButton(onClick = { onDeleteListClick(name) }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "delete $name")
+                                Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.cd_delete, name))
                             }
                         },
                     )
@@ -77,7 +79,7 @@ fun HomeView(
                     modifier = Modifier.fillMaxWidth().padding(8.dp),
                     onClick = onAddListClick,
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = "new list")
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.cd_new_list))
                 }
             }
         },
@@ -92,7 +94,7 @@ fun HomeView(
                     horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
                 ) {
                     FloatingActionButton(onClick = onAddListClick) {
-                        Icon(Icons.Filled.Add, contentDescription = "add list")
+                        Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.cd_add_list))
                     }
                 }
             }
@@ -101,7 +103,7 @@ fun HomeView(
                 floatingActionButton = {
                     if (hasItems) {
                         FloatingActionButton(onClick = onRefreshClick) {
-                            Icon(Icons.Filled.Refresh, contentDescription = "refresh")
+                            Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.cd_refresh))
                         }
                     }
                 },
@@ -110,16 +112,16 @@ fun HomeView(
                         title = { Text(selectedListName) },
                         navigationIcon = {
                             IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                Icon(Icons.Filled.Menu, contentDescription = "menu")
+                                Icon(Icons.Filled.Menu, contentDescription = stringResource(R.string.cd_menu))
                             }
                         },
                         actions = {
                             IconButton(onClick = onEditClick) {
-                                Icon(Icons.Filled.Edit, contentDescription = "edit")
+                                Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.cd_edit))
                             }
                             if (hasItems) {
                                 IconButton(onClick = onShareClick) {
-                                    Icon(Icons.Filled.Share, contentDescription = "share")
+                                    Icon(Icons.Filled.Share, contentDescription = stringResource(R.string.cd_share))
                                 }
                             }
                         },

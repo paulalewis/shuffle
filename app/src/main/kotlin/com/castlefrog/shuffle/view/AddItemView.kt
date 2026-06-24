@@ -22,7 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.castlefrog.shuffle.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +51,7 @@ fun AddItemView(
                 enabled = itemName.isNotBlank(),
                 onClick = { onAddItemClicked(itemName.trim()) },
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "add item")
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.cd_add_item))
             }
             Spacer(modifier = Modifier.height(24.dp))
         }
