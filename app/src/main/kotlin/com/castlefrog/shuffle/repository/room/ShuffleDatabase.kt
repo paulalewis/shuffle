@@ -76,13 +76,13 @@ abstract class ShuffleDatabase : RoomDatabase() {
             "Aquarium", "Rock Climbing", "Zoo", "Dinner and Movie", "Swimming", "Ice Cream",
             "Kayaking", "State Fair", "Watch sunrise or sunset", "Indoor Skydiving",
             "Geocaching", "Dance Class", "Trampoline Park", "Paddle Boarding", "Sailing",
-            "Cave Exploring", "Axe / Knife Throwing", "Ghost Tour", "Ghost Town", "Scuba Diving",
-            "Ziplining", "Bowling", "Drive in Movie", "Horseback Riding", "Opera / Play",
+            "Cave Exploring", "Axe or Knife Throwing", "Ghost Tour", "Ghost Town", "Scuba Diving",
+            "Zip line", "Bowling", "Drive in Movie", "Horseback Riding", "Opera / Play",
             "Dinner out with friends and family", "Tour Downtown Shops", "Escape room", "Museum",
             "Camping", "Laser Tag", "Road trip", "Air Bob", "Visit national park",
             "Go out for dessert", "Farmers Market", "Mall", "Bookstore", "New skill class",
             "Make time capsule", "Berry picking",
-            "\$20 limit to purchase outfit from thrift store, see who has the best",
+            "Purchase outfit from thrift store, see who has the best",
             "Outdoor picnic", "Antique shop", "Visit local landmarks", "Video game", "Nerf war",
             "Candlelight Dinner", "Dinner (New recipe)", "Indoor picnic", "Easter egg hunt",
             "Create photo collage", "Communication building exercise", "Board game",
@@ -92,12 +92,12 @@ abstract class ShuffleDatabase : RoomDatabase() {
         private val EXERCISE_ITEMS = listOf(
             "Bear crawl", "Burpee", "Calf raise", "Dip", "Jumping jack", "Leg raises", "Lunge",
             "Mountain climber", "Pelvic lift", "Plank", "Pull-up", "Push-up", "Split jump",
-            "Sit Up", "Squat", "Squat thrust",
+            "Sit Up", "Squat",
         )
 
         private val MEALS_ITEMS = listOf(
-            "Lasagna", "Ravioli", "Taco", "Pancakes", "Hot dogs", "Fried chicken", "Burgers",
-            "Spaghetti with meatballs", "Sloppy joes", "Steak and potato",
+            "Lasagna", "Ravioli", "Tacos", "Pancakes", "Hot dogs", "Fried chicken", "Burgers",
+            "Spaghetti", "Steak and potatoes",
         )
     }
 }
