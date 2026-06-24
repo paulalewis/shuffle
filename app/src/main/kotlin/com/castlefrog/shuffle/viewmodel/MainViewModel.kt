@@ -27,6 +27,8 @@ import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import kotlin.math.max
+import kotlin.math.min
 
 class MainViewModel(
     private val analyticsLogger: AnalyticsLogger,
@@ -271,8 +273,9 @@ class MainViewModel(
     private fun confirmDeleteList(name: String) {
         analyticsLogger.logButtonTap(AnalyticsValue.ButtonName.CONFIRM_DELETE_LIST)
         viewModelScope.launch(Dispatchers.IO) {
-            updateSelectedListBeforeDelete(name)
             deleteList(name)
+            updateSelectedList()
+            updateSelectedItems()
             updateUi()
         }
     }
@@ -282,22 +285,13 @@ class MainViewModel(
         shuffleListRepository.deleteShuffleList(name).catch { Timber.w(it) }.single()
     }
 
-    /**
-     * If the currently selected list is being deleted,
-     * this function updates the selected list to another existing list
-     * (if any) before the deletion happens.
-     */
-    private suspend fun updateSelectedListBeforeDelete(name: String) {
-        if (model.selectedList?.name != name) return
-        val selectedListIndex = model.allListNames.indexOf(name).let {
-            if (it == 0) if (model.allListNames.size > 1) 1 else 0 else it - 1
+    private suspend fun updateSelectedList() {
+        val currentIndex = shuffleListRepository.getCurrentSelectedListIndex().first()
+        val newIndex = max(0, min(currentIndex, model.allListNames.size - 1))
+        if (currentIndex != newIndex) {
+            shuffleListRepository.setCurrentSelectedListIndex(newIndex).single()
         }
-        val selectedListName = if (model.allListNames.isEmpty()) null else model.allListNames[selectedListIndex]
-        shuffleListRepository.setCurrentSelectedListIndex(selectedListIndex).single()
-        model.selectedList = if (selectedListName != null)
-            shuffleListRepository.getShuffleListByName(selectedListName).catch { Timber.w(it) }.firstOrNull()
-        else null
-        updateSelectedItems()
+        findSelectedList()
     }
 
     private fun updateSelectedItems() {
