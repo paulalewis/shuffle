@@ -61,7 +61,6 @@ class MainViewModel(
             ) : MainView()
         }
         sealed class OverlayView {
-            data object AddItemView : OverlayView()
             data object AddListView : OverlayView()
             data class ConfirmDeleteListView(val listName: String) : OverlayView()
             data class EditListView(val list: ShuffleList) : OverlayView()
