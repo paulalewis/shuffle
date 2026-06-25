@@ -36,7 +36,7 @@ class MainViewModel(
 ) : ViewModel() {
     data class Model(
         var hasInit: Boolean = false,
-        var allListNames: MutableList<String> = mutableListOf(),
+        var allListNames: SnapshotStateList<String> = mutableStateListOf(),
         var selectedList: ShuffleList? = null,
         var selectedItems: SnapshotStateList<ShuffleItem> = mutableStateListOf(),
     )
