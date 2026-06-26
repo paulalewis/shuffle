@@ -3,7 +3,6 @@
 
     <application
         android:name=".ShuffleApplication"
-        android:allowBackup="${allowBackup}"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
