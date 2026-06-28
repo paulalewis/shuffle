@@ -17,9 +17,7 @@ fun AnalyticsLogger.logButtonTap(
 ) {
     logEvent(
         Event.BUTTON_TAP,
-        data.apply {
-            plus(Key.BUTTON_NAME to name)
-        }
+        data + (Key.BUTTON_NAME to name)
     )
 }
 
