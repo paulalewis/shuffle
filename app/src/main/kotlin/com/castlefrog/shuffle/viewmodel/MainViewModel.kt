@@ -129,7 +129,7 @@ class MainViewModel(
     private fun generateMainUiState(): UiState {
         return UiState(
             mainView = UiState.MainView.ShuffleView(
-                allListNames = model.allListNames,
+                allListNames = model.allListNames.toList(),
                 numberOfSubsetItems = model.selectedList?.subsetSize ?: 1,
                 totalItemCount = model.selectedList?.items?.size ?: 0,
                 selectedListName = model.selectedList?.name ?: "",
