@@ -17,7 +17,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -29,7 +28,7 @@ import com.castlefrog.shuffle.model.ShuffleItem
 @Composable
 fun ItemListView(
     paddingValues: PaddingValues,
-    itemData: SnapshotStateList<ShuffleItem>,
+    itemData: List<ShuffleItem>,
     currentItemCount: Int,
     totalItemCount: Int,
     onSelectItemListener: (index: Int) -> Unit = {},
@@ -86,16 +85,12 @@ fun ItemListViewLightPreview() {
             paddingValues = PaddingValues(top = 50.dp),
             currentItemCount = 4,
             totalItemCount = 6,
-            itemData = SnapshotStateList<ShuffleItem>().apply {
-                addAll(
-                    listOf(
-                        ShuffleItem(text = "Push Ups"),
-                        ShuffleItem(text = "Sit Ups"),
-                        ShuffleItem(text = "Planks"),
-                        ShuffleItem(text = "Pull Ups"),
-                    )
-                )
-            }
+            itemData = listOf(
+                ShuffleItem(text = "Push Ups"),
+                ShuffleItem(text = "Sit Ups"),
+                ShuffleItem(text = "Planks"),
+                ShuffleItem(text = "Pull Ups"),
+            )
         )
     }
 }

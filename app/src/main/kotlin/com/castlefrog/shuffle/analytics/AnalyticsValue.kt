@@ -26,5 +26,7 @@ object AnalyticsValue {
 
     object ValueName {
         const val NAME = "name"
+        const val OLD_VALUE = "old_value"
+        const val NEW_VALUE = "new_value"
     }
 }
